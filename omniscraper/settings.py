@@ -33,9 +33,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'scraper',
+    'omniscraper_react',
     'crispy_forms',
-    'rest_framework'
-
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
