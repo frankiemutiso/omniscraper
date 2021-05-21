@@ -6,8 +6,8 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 
 urlpatterns = [
     # path('accounts/', include("django.contrib.auth.urls")),
-    path('videos/', views.twitter_videos),
-    path('<slug:slug>', views.twitter_video),
+    path('videos/', views.TwitterVideosList.as_view()),
+    path('<slug:slug>', views.TwitterVideoDetail.as_view()),
     path('favicon.ico', RedirectView.as_view(
         url=staticfiles_storage.url("favicon.ico")))
 ]

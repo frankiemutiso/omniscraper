@@ -55,39 +55,59 @@
 
 #         return redirect('home')
 
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
+from django.http.response import Http404
 from .models import TwitterVideo
 from .serializers import TwitterVideoSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
-@api_view(['GET'])
-def twitter_videos(request):
-    if request.method == 'GET':
-        videos = TwitterVideo.objects.exclude(flagged=True)
+def infinite_filter(request):
+    limit = request.GET.get("limit")
+    offset = request.GET.get("offset")
+
+    return TwitterVideo.objects.exclude(flagged=True).order_by('-date_saved_utc')[int(offset): int(offset) + int(limit)]
+
+
+def is_there_more_data(request):
+    offset = request.GET.get("offset")
+
+    if int(offset) > TwitterVideo.objects.exclude(flagged=True).count():
+        return False
+    return True
+
+
+class TwitterVideosList(APIView):
+    def get(self, request):
+        videos = infinite_filter(self.request)
         serializer = TwitterVideoSerializer(videos, many=True)
 
-        return Response(serializer.data)
+        return Response({
+            "videos": serializer.data,
+            "has_more": is_there_more_data(request)
+        })
 
 
-@api_view(['GET', 'PUT'])
-def twitter_video(request, slug):
-    try:
-        video = TwitterVideo.objects.get(slug=slug)
-    except:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+class TwitterVideoDetail(APIView):
+    def get_object(self, slug):
+        try:
+            return TwitterVideo.objects.get(slug=slug)
+        except TwitterVideo.DoesNotExist:
+            raise Http404
 
-    if request.method == 'GET':
+    def get(self, request, slug):
+        video = self.get_object(slug)
         serializer = TwitterVideoSerializer(video)
+
         return Response(serializer.data)
 
-    elif request.method == 'PUT':
+    def put(self, request, slug):
+        video = self.get_object(slug)
         serializer = TwitterVideoSerializer(video, data=request.data)
 
         if serializer.is_valid():
             serializer.save()
-
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

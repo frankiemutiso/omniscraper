@@ -1,30 +1,70 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
+import axios from "axios";
 
-import AppBar from "@material-ui/core/AppBar";
-import {
-  Button,
-  IconButton,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
-
-import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import Home from "./Home";
+import Nav from "./Nav";
 
 class App extends Component {
-  state = {
-    auth: true,
-    anchorEl: null,
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      auth: true,
+      error: false,
+      loading: false,
+      videos: [],
+      hasMore: true,
+      offset: 0,
+      limit: 12,
+    };
+
+    window.onscroll = () => {
+      const {
+        loadVideos,
+        state: { error, loading, hasMore },
+      } = this;
+
+      if (error || loading || !hasMore) return;
+
+      if (
+        document.documentElement.scrollHeight -
+          document.documentElement.scrollTop ===
+        document.documentElement.clientHeight
+      ) {
+        loadVideos();
+      }
+    };
+  }
+
+  componentDidMount = () => {
+    this.loadVideos();
   };
 
-  handleMenuOpen = (e) => {
-    this.setState({ anchorEl: e.currentTarget });
-  };
+  loadVideos = () => {
+    this.setState({ loading: true }, () => {
+      const { offset, limit } = this.state;
 
-  handleMenuClosed = () => {
-    this.setState({ anchorEl: null });
+      axios
+        .get(`http://127.0.0.1:8000/videos/?limit=${limit}&offset=${offset}`)
+        .then((res) => {
+          const newVideos = res.data.videos;
+          const hasMore = res.data.has_more;
+
+          this.setState({
+            hasMore,
+            loading: false,
+            videos: [...this.state.videos, ...newVideos],
+            offset: offset + limit,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            error: err.message,
+            loading: false,
+          });
+        });
+    });
   };
 
   handleAuthChange = (e) => {
@@ -33,67 +73,19 @@ class App extends Component {
 
   render() {
     const { handleMenuOpen, handleMenuClosed } = this;
-    const { auth, anchorEl } = this.state;
+    const { auth, anchorEl, error, loading, hasMore, videos } = this.state;
 
-    const open = Boolean(anchorEl);
-
-    const navBar = (
-      <div style={{ flexGrow: 1, margin: 0 }}>
-        <AppBar position="static" style={{ backgroundColor: "#1b262c" }}>
-          <Toolbar>
-            <h4
-              style={{
-                flexGrow: 1,
-                textTransform: "uppercase",
-              }}
-            >
-              Omniscraper
-            </h4>
-            {auth && (
-              <div>
-                <IconButton
-                  onClick={handleMenuOpen}
-                  color="inherit"
-                  style={{ marginRight: 16 }}
-                >
-                  <AccountCircleIcon />
-                </IconButton>
-                <Menu
-                  keepMounted
-                  id="menu-appbar"
-                  anchor={anchorEl}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={open}
-                  onClose={handleMenuClosed}
-                >
-                  <MenuItem
-                    style={{ fontWeight: 700 }}
-                    onClick={handleMenuClosed}
-                  >
-                    Create Account
-                  </MenuItem>
-                  <MenuItem
-                    style={{ fontWeight: 700 }}
-                    onClick={handleMenuClosed}
-                  >
-                    Login
-                  </MenuItem>
-                </Menu>
-              </div>
-            )}
-          </Toolbar>
-        </AppBar>
-      </div>
+    return (
+      <React.Fragment>
+        <Nav auth={auth} />
+        <Home
+          error={error}
+          loading={loading}
+          videos={videos}
+          hasMore={hasMore}
+        />
+      </React.Fragment>
     );
-
-    return <React.Fragment>{navBar}</React.Fragment>;
   }
 }
 

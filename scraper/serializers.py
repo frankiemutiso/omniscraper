@@ -5,4 +5,4 @@ from .models import TwitterVideo
 class TwitterVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TwitterVideo
-        fields = ['id', 'url', 'slug', 'flagged']
+        fields = '__all__'
