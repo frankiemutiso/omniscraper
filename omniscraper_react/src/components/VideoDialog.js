@@ -1,40 +1,114 @@
 import {
   Button,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardMedia,
   Dialog,
   DialogActions,
   DialogContent,
+  Hidden,
+  withStyles,
 } from "@material-ui/core";
 import React, { Component } from "react";
+import Download from "@material-ui/icons/ArrowDownward";
+import TwitterIcon from "@material-ui/icons/Twitter";
+
+const styles = (theme) => ({
+  buttons: {
+    border: "1px solid #185adb",
+    color: "#185adb",
+    fontFamily: "inherit",
+    fontWeight: 600,
+  },
+});
 
 export class VideoDialog extends Component {
+  state = {
+    autoplay: null,
+  };
+
   render() {
-    const { open, handleClose, url, fullWidth } = this.props;
+    const { open, handleClose, url, parentTweet, classes } = this.props;
 
     return (
       <div>
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog
+          maxWidth="sm"
+          fullWidth={true}
+          open={open}
+          onClose={handleClose}
+          PaperProps={{
+            style: {
+              // backgroundColor: "transparent",
+              // boxShadow: "none",
+            },
+          }}
+        >
           <DialogContent
             style={{
-              width: 480,
-              height: 340,
+              padding: 0,
             }}
           >
-            <video
-              style={{
-                width: "100%",
-                height: "100%",
-                border: "none",
-                outline: "none",
-                borderRadius: "10px",
-                backgroundColor: "#f6f5f5",
-              }}
-              controls
-              autoPlay
-              controlsList="nodownload"
-              disablePictureInPicture
-            >
-              <source src={`${url}`} type="video/mp4"></source>
-            </video>
+            <Card style={{ maxWidth: 600 }}>
+              <CardActionArea>
+                <Hidden smUp>
+                  <CardMedia
+                    component="video"
+                    height="180"
+                    src={url}
+                    style={{ objectFit: "contain" }}
+                    autoPlay
+                    controls
+                    disablePictureInPicture
+                    controlsList="nodownload"
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+                </Hidden>
+
+                <Hidden smDown>
+                  <CardMedia
+                    component="video"
+                    height="300"
+                    src={url}
+                    style={{ objectFit: "contain" }}
+                    autoPlay
+                    controls
+                    disablePictureInPicture
+                    controlsList="nodownload"
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+                </Hidden>
+              </CardActionArea>
+              <CardActions
+                style={{ display: "flex", justifyContent: "space-between" }}
+              >
+                <Button
+                  size="small"
+                  color="primary"
+                  style={{
+                    color: "#185adb",
+                    fontFamily: "inherit",
+                    fontWeight: 600,
+                  }}
+                  startIcon={<TwitterIcon />}
+                  href={`https://twitter.com/i/status/${parentTweet}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Source
+                </Button>
+                <Button
+                  size="small"
+                  color="primary"
+                  variant="outlined"
+                  className={classes.buttons}
+                  startIcon={<Download />}
+                >
+                  Download
+                </Button>
+              </CardActions>
+            </Card>
           </DialogContent>
         </Dialog>
       </div>
@@ -42,4 +116,4 @@ export class VideoDialog extends Component {
   }
 }
 
-export default VideoDialog;
+export default withStyles(styles)(VideoDialog);

@@ -4,11 +4,7 @@
     url("./assets/fonts/Montserrat-Medium.ttf") format("truetype"),
     url("./assets/fonts/Montserrat-SemiBold.ttf") format("truetype"),
     url("./assets/fonts/Montserrat-Black.ttf") format("truetype"),
-    url("./assets/fonts/Montserrat-Bold.ttf") format("truetype"),
-    url("./assets/fonts/Montserrat-ExtraBold.ttf") format("truetype"),
-    url("./assets/fonts/Montserrat-Light.ttf") format("truetype");
-    
-
+    url("./assets/fonts/Montserrat-Bold.ttf") format("truetype");
 }
 
 *{

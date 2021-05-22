@@ -72,8 +72,7 @@ class App extends Component {
   };
 
   render() {
-    const { handleMenuOpen, handleMenuClosed } = this;
-    const { auth, anchorEl, error, loading, hasMore, videos } = this.state;
+    const { auth, error, loading, hasMore, videos } = this.state;
 
     return (
       <React.Fragment>

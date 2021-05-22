@@ -37,6 +37,7 @@ export class Nav extends Component {
               style={{
                 flexGrow: 1,
                 textTransform: "uppercase",
+                fontFamily: "inherit",
                 letterSpacing: "0.1em",
               }}
             >
