@@ -10,10 +10,10 @@ import {
   IconButton,
   withStyles,
 } from "@material-ui/core";
-import Download from "@material-ui/icons/ArrowDownward";
-import TwitterIcon from "@material-ui/icons/Twitter";
-import VideoDialog from "./VideoDialog";
+import ReportIcon from "@material-ui/icons/Report";
 import VisibilityIcon from "@material-ui/icons/Visibility";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const styles = (theme) => ({
   root: {
@@ -35,60 +35,112 @@ const styles = (theme) => ({
 });
 
 export class Home extends Component {
-  state = {
-    open: false,
-    url: "",
-    parentTweet: null,
+  constructor(props) {
+    super(props);
+    this.state = {
+      error: false,
+      loading: false,
+      videos: [],
+      hasMore: true,
+      offset: 0,
+      limit: 12,
+    };
+
+    window.onscroll = () => {
+      const {
+        loadVideos,
+        state: { error, loading, hasMore },
+      } = this;
+
+      if (error || loading || !hasMore) return;
+
+      if (
+        document.documentElement.scrollHeight -
+          document.documentElement.scrollTop ===
+        document.documentElement.clientHeight
+      ) {
+        loadVideos();
+      }
+    };
+  }
+
+  componentDidMount = () => {
+    this.loadVideos();
   };
 
-  handleDialogOpen = (video) => {
-    this.setState({
-      open: true,
-      url: video.url,
-      parentTweet: video.parent_tweet_id,
+  loadVideos = () => {
+    this.setState({ loading: true }, () => {
+      const { offset, limit } = this.state;
+
+      axios
+        .get(
+          `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`
+        )
+        .then((res) => {
+          const newVideos = res.data.videos;
+          const hasMore = res.data.has_more;
+
+          this.setState({
+            hasMore,
+            loading: false,
+            videos: [...this.state.videos, ...newVideos],
+            offset: offset + limit,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            error: err.message,
+            loading: false,
+          });
+        });
     });
   };
 
-  handleDialogClosed = () => {
-    this.setState({ open: false, url: "", parentTweet: null });
-  };
-
   render() {
-    const { open, url, parentTweet } = this.state;
-    const { error, loading, hasMore, videos, classes } = this.props;
-    const { handleDialogOpen, handleDialogClosed } = this;
+    const { error, loading, hasMore, videos } = this.state;
+    const { classes, loggedIn } = this.props;
 
     return (
       <div className={classes.root}>
-        <VideoDialog
-          open={open}
-          handleClose={handleDialogClosed}
-          url={url}
-          parentTweet={parentTweet}
-        />
         <Grid container spacing={6}>
           {videos.map((video) => (
             <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
               <Card style={{ maxWidth: 380 }}>
                 <CardActionArea>
                   <CardMedia
+                    component={Link}
+                    to={`/${video.slug}`}
                     component="video"
                     height="160"
                     disablePictureInPicture
                     controlsList="nodownload"
                     src={video.url}
                     style={{ objectFit: "cover" }}
-                    onClick={() => handleDialogOpen(video)}
                     onContextMenu={(e) => e.preventDefault()}
                   ></CardMedia>
                 </CardActionArea>
-                <CardActions>
+                <CardActions
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  {loggedIn && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="secondary"
+                      startIcon={<ReportIcon />}
+                      style={{ fontFamily: "inherit", fontWeight: 600 }}
+                    >
+                      Report
+                    </Button>
+                  )}
+
                   <Button
+                    component={Link}
+                    to={`/${video.slug}`}
                     size="small"
                     variant="outlined"
                     color="primary"
                     startIcon={<VisibilityIcon />}
-                    onClick={() => handleDialogOpen(video)}
                     className={classes.buttons}
                     style={{ fontFamily: "inherit", fontWeight: 600 }}
                   >

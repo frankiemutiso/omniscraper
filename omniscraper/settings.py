@@ -1,8 +1,10 @@
+from datetime import timedelta
 from pathlib import Path
 import os
 import environ
 import django_heroku
 import dj_database_url
+
 
 env = environ.Env()
 environ.Env.read_env()
@@ -11,10 +13,6 @@ environ.Env.read_env()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -33,9 +31,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'scraper',
-    'omniscraper_react',
+    'omniscraper_frontend',
     'crispy_forms',
     'rest_framework',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 
 MIDDLEWARE = [
@@ -73,8 +72,6 @@ WSGI_APPLICATION = 'omniscraper.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 
 # DEVELOPMENT
 # DATABASES = {
@@ -166,3 +163,27 @@ GA_TRACKING_ID = env('GA_TRACKING_ID')
 
 USE_GA = env('DJANGO_USE_GA')
 USE_GA = {'True': True, 'False': False}.get(USE_GA, False)
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": 'HS256',
+    "SIGNING_KEY": SECRET_KEY,
+    "VERIFYING_KEY": None,
+    "AUTH_HEADER_TYPES": ("JWT",),
+    "USER_ID_FIELD": 'id',
+    "USER_ID_CLAIM": 'user_id',
+    "AUTH_TOKEN_CLASSES": ('rest_framework_simplejwt.tokens.AccessToken',),
+    "TOKEN_TYPE_CLAIM": "token_type"
+}
