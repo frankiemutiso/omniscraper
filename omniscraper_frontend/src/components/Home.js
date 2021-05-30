@@ -9,6 +9,9 @@ import {
   CircularProgress,
   IconButton,
   withStyles,
+  Dialog,
+  DialogTitle,
+  DialogActions,
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
 import VisibilityIcon from "@material-ui/icons/Visibility";
@@ -32,6 +35,12 @@ const styles = (theme) => ({
     color: "#185adb",
     fontFamily: "Montserrat",
   },
+  title: {
+    "& h2": {
+      fontFamily: "inherit",
+      fontWeight: 700,
+    },
+  },
 });
 
 export class Home extends Component {
@@ -44,6 +53,8 @@ export class Home extends Component {
       hasMore: true,
       offset: 0,
       limit: 12,
+      open: false,
+      flagged: false
     };
 
     window.onscroll = () => {
@@ -96,12 +107,44 @@ export class Home extends Component {
     });
   };
 
+  handlePromptOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handleClose = () => {
+    this.setState({ open: false });
+  };
+
   render() {
-    const { error, loading, hasMore, videos } = this.state;
+    const { error, loading, hasMore, videos, open } = this.state;
     const { classes, loggedIn } = this.props;
+    const { handleClose, handlePromptOpen } = this;
 
     return (
       <div className={classes.root}>
+        <Dialog open={open} onClose={handleClose}>
+          <DialogTitle className={classes.title}>
+            Are you sure you want to report this video?
+          </DialogTitle>
+          <DialogActions>
+            <Button
+              onClick={handleClose}
+              color="secondary"
+              style={{ fontFamily: "inherit", fontWeight: 600 }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleClose}
+              color="primary"
+              variant="contained"
+              autoFocus
+              style={{ fontFamily: "inherit", fontWeight: 600 }}
+            >
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
         <Grid container spacing={6}>
           {videos.map((video) => (
             <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
@@ -129,6 +172,7 @@ export class Home extends Component {
                       color="secondary"
                       startIcon={<ReportIcon />}
                       style={{ fontFamily: "inherit", fontWeight: 600 }}
+                      onClick={handlePromptOpen}
                     >
                       Report
                     </Button>
@@ -142,7 +186,11 @@ export class Home extends Component {
                     color="primary"
                     startIcon={<VisibilityIcon />}
                     className={classes.buttons}
-                    style={{ fontFamily: "inherit", fontWeight: 600 }}
+                    style={{
+                      fontFamily: "inherit",
+                      fontWeight: 600,
+                      marginLeft: "auto",
+                    }}
                   >
                     View
                   </Button>

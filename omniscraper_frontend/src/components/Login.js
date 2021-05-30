@@ -5,13 +5,20 @@ import {
   Button,
   Container,
   CssBaseline,
+  FilledInput,
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
   TextField,
   Typography,
   withStyles,
 } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import { CircularProgress } from "@material-ui/core";
-
+import Visibility from "@material-ui/icons/Visibility";
+import VisibilityOff from "@material-ui/icons/VisibilityOff";
 import { axiosInstance } from "../axiosInstance";
 
 const styles = (theme) => ({
@@ -49,6 +56,7 @@ const styles = (theme) => ({
 export class Login extends Component {
   state = {
     error: "",
+    showPassword: false,
   };
 
   componentDidUpdate = (prevProps) => {
@@ -57,6 +65,14 @@ export class Login extends Component {
 
       console.log("Error on login form", this.props.error);
     }
+  };
+
+  handleClickShowPassword = () => {
+    this.setState({ showPassword: !this.state.showPassword });
+  };
+
+  handleMouseDownPassword = (event) => {
+    event.preventDefault();
   };
 
   render() {
@@ -69,7 +85,9 @@ export class Login extends Component {
       loginLoading,
     } = this.props;
 
-    const { error } = this.state;
+    const { error, showPassword } = this.state;
+
+    const { handleClickShowPassword, handleMouseDownPassword } = this;
 
     return (
       <Container>
@@ -92,7 +110,6 @@ export class Login extends Component {
             <TextField
               value={username}
               onChange={handleChange}
-              size="small"
               variant="outlined"
               margin="normal"
               required
@@ -104,9 +121,10 @@ export class Login extends Component {
               autoFocus
               inputProps={{ style: { fontFamily: "inherit" } }}
               InputLabelProps={{ style: { fontFamily: "inherit" } }}
+              style={{ marginBottom: 20 }}
             />
 
-            <TextField
+            {/* <TextField
               value={password}
               onChange={handleChange}
               type="password"
@@ -121,7 +139,42 @@ export class Login extends Component {
               autoComplete="current-password"
               inputProps={{ style: { fontFamily: "inherit" } }}
               InputLabelProps={{ style: { fontFamily: "inherit" } }}
-            />
+            /> */}
+            <FormControl
+              // className={clsx(classes.margin, classes.textField)}
+              variant="outlined"
+              style={{ width: "100%" }}
+            >
+              <InputLabel
+                htmlFor="filled-adornment-password"
+                style={{ fontFamily: "inherit" }}
+              >
+                Password
+              </InputLabel>
+              <OutlinedInput
+                size="small"
+                id="filled-adornment-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={handleChange}
+                label="Password"
+                name="password"
+                required
+                autoComplete="current-password"
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                    </IconButton>
+                  </InputAdornment>
+                }
+              />
+            </FormControl>
             <Button
               type="submit"
               fullWidth

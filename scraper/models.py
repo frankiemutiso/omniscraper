@@ -13,3 +13,12 @@ class TwitterVideo(models.Model):
 
     class Meta:
         db_table = 'twitter_videos'
+
+
+class VideoTag(models.Model):
+    tag_name = models.CharField(max_length=100, unique=True)
+    date_created = models.DateTimeField()
+    twitter_videos = models.ManyToManyField(TwitterVideo)
+
+    class Meta:
+        db_table = 'video_tags'

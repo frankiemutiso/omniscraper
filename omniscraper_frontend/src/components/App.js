@@ -55,6 +55,7 @@ class App extends Component {
           });
         })
         .catch((error) => {
+          console.log(error.message);
           this.setState({ loggedIn: false, loginLoading: false });
         });
     });
