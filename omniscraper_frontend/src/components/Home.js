@@ -15,8 +15,10 @@ import {
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
 import VisibilityIcon from "@material-ui/icons/Visibility";
+
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { axiosInstance } from "../axiosInstance";
 
 const styles = (theme) => ({
   root: {
@@ -54,7 +56,8 @@ export class Home extends Component {
       offset: 0,
       limit: 12,
       open: false,
-      flagged: false
+      clickedVideo: {},
+      flagging: false,
     };
 
     window.onscroll = () => {
@@ -107,18 +110,46 @@ export class Home extends Component {
     });
   };
 
-  handlePromptOpen = () => {
-    this.setState({ open: true });
+  flagVideo = (video) => {
+    const url = `http://127.0.0.1:8000/api/${video.slug}`;
+    const flagged = true;
+
+    this.setState({ flagging: true }, () => {
+      axios
+        .put(url, {
+          id: video.id,
+          url: video.url,
+          date_saved_utc: video.date_saved_utc,
+          parent_tweet_id: video.parent_tweet_id,
+          slug: video.slug,
+          flagged: flagged,
+        })
+        .then(() => {
+          const newVideos = this.state.videos.filter((v) => v.id !== video.id);
+
+          this.setState({ flagging: false, videos: newVideos });
+          this.handleClose();
+        })
+        .catch((err) => {
+          this.setState({ flagging: false });
+          this.handleClose();
+        });
+    });
+  };
+
+  handlePromptOpen = (video) => {
+    this.setState({ open: true, clickedVideo: video });
   };
 
   handleClose = () => {
-    this.setState({ open: false });
+    this.setState({ open: false, clickedVideo: {} });
   };
 
   render() {
-    const { error, loading, hasMore, videos, open } = this.state;
+    const { error, loading, hasMore, videos, open, clickedVideo, flagging } =
+      this.state;
     const { classes, loggedIn } = this.props;
-    const { handleClose, handlePromptOpen } = this;
+    const { handleClose, handlePromptOpen, flagVideo } = this;
 
     return (
       <div className={classes.root}>
@@ -132,16 +163,19 @@ export class Home extends Component {
               color="secondary"
               style={{ fontFamily: "inherit", fontWeight: 600 }}
             >
-              Cancel
+              No
             </Button>
             <Button
-              onClick={handleClose}
+              onClick={() => flagVideo(clickedVideo)}
               color="primary"
               variant="contained"
               autoFocus
               style={{ fontFamily: "inherit", fontWeight: 600 }}
+              endIcon={
+                flagging ? <CircularProgress size={16} color="white" /> : ""
+              }
             >
-              Save
+              Yes
             </Button>
           </DialogActions>
         </Dialog>
@@ -168,11 +202,10 @@ export class Home extends Component {
                   {loggedIn && (
                     <Button
                       size="small"
-                      variant="outlined"
                       color="secondary"
                       startIcon={<ReportIcon />}
                       style={{ fontFamily: "inherit", fontWeight: 600 }}
-                      onClick={handlePromptOpen}
+                      onClick={() => handlePromptOpen(video)}
                     >
                       Report
                     </Button>

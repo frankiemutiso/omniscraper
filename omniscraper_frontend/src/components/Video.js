@@ -116,7 +116,7 @@ export class Video extends Component {
                   fontWeight: 600,
                 }}
                 startIcon={<TwitterIcon />}
-                href={`https://twitter.com/i/status/${video.parentTweet}`}
+                href={`https://twitter.com/i/status/${video.parent_tweet_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -164,7 +164,7 @@ export class Video extends Component {
                   fontWeight: 600,
                 }}
                 startIcon={<TwitterIcon />}
-                href={`https://twitter.com/i/status/${video.parentTweet}`}
+                href={`https://twitter.com/i/status/${video.parent_tweet_id}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

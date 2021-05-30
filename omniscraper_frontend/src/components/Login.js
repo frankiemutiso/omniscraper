@@ -3,6 +3,7 @@ import React, { Component } from "react";
 import {
   Avatar,
   Button,
+  CircularProgress,
   Container,
   CssBaseline,
   FilledInput,
@@ -16,10 +17,8 @@ import {
   withStyles,
 } from "@material-ui/core";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
-import { CircularProgress } from "@material-ui/core";
 import Visibility from "@material-ui/icons/Visibility";
 import VisibilityOff from "@material-ui/icons/VisibilityOff";
-import { axiosInstance } from "../axiosInstance";
 
 const styles = (theme) => ({
   paper: {
@@ -124,27 +123,7 @@ export class Login extends Component {
               style={{ marginBottom: 20 }}
             />
 
-            {/* <TextField
-              value={password}
-              onChange={handleChange}
-              type="password"
-              size="small"
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="password"
-              label="Password"
-              name="password"
-              autoComplete="current-password"
-              inputProps={{ style: { fontFamily: "inherit" } }}
-              InputLabelProps={{ style: { fontFamily: "inherit" } }}
-            /> */}
-            <FormControl
-              // className={clsx(classes.margin, classes.textField)}
-              variant="outlined"
-              style={{ width: "100%" }}
-            >
+            <FormControl variant="outlined" style={{ width: "100%" }}>
               <InputLabel
                 htmlFor="filled-adornment-password"
                 style={{ fontFamily: "inherit" }}
