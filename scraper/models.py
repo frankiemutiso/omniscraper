@@ -1,5 +1,5 @@
 from django.db import models
-
+import uuid
 # Create your models here.
 
 
@@ -16,6 +16,7 @@ class TwitterVideo(models.Model):
 
 
 class VideoTag(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tag_name = models.CharField(max_length=100, unique=True)
     date_created = models.DateTimeField()
     twitter_videos = models.ManyToManyField(TwitterVideo)

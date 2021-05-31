@@ -15,10 +15,8 @@ import {
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
 import VisibilityIcon from "@material-ui/icons/Visibility";
-
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { axiosInstance } from "../axiosInstance";
 
 const styles = (theme) => ({
   root: {
