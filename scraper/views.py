@@ -55,6 +55,7 @@
 
 #         return redirect('home')
 
+
 from django.http.response import Http404
 from .models import TwitterVideo
 from .serializers import TwitterVideoSerializer
@@ -69,7 +70,7 @@ def infinite_filter(request):
     limit = request.GET.get("limit")
     offset = request.GET.get("offset")
 
-    return TwitterVideo.objects.exclude(flagged=True).order_by('-date_saved_utc')[int(offset): int(offset) + int(limit)]
+    return TwitterVideo.objects.exclude(flagged=True).order_by('date_saved_utc')[int(offset): int(offset) + int(limit)]
 
 
 def is_there_more_data(request):

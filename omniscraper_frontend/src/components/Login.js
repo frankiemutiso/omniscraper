@@ -32,7 +32,7 @@ const styles = (theme) => ({
     alignItems: "center",
   },
   avatar: {
-    margin: theme.spacing(1),
+    margin: theme.spacing(2),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
@@ -44,11 +44,6 @@ const styles = (theme) => ({
   },
   submit: {
     margin: theme.spacing(3, 0, 2),
-    backgroundColor: "#185adb",
-    color: "white",
-    "&:hover": {
-      backgroundColor: "#233e8b",
-    },
   },
 });
 
@@ -111,7 +106,6 @@ export class Login extends Component {
               onChange={handleChange}
               variant="outlined"
               margin="normal"
-              required
               fullWidth
               id="username"
               label="Username"

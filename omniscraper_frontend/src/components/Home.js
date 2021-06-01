@@ -12,9 +12,19 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
+  Menu,
+  MenuItem,
+  DialogContent,
+  Checkbox,
+  TextField,
+  Chip,
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
 import VisibilityIcon from "@material-ui/icons/Visibility";
+import MoreIcon from "@material-ui/icons/MoreVert";
+import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
+import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -41,7 +51,31 @@ const styles = (theme) => ({
       fontWeight: 700,
     },
   },
+  menuItemText: {
+    fontFamily: "inherit",
+    fontWeight: 600,
+  },
 });
+
+const tags = [
+  { tag_name: "Science" },
+  { tag_name: "Comedy" },
+  { tag_name: "Education" },
+  { tag_name: "Politics" },
+  { tag_name: "Football" },
+  { tag_name: "Religion" },
+  { tag_name: "Business" },
+  { tag_name: "Lifestyle" },
+  { tag_name: "Recipes" },
+  { tag_name: "TikTok" },
+  { tag_name: "DIY" },
+  { tag_name: "History" },
+  { tag_name: "Sports" },
+  { tag_name: "Art" },
+];
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" color="primary" />;
 
 export class Home extends Component {
   constructor(props) {
@@ -56,6 +90,9 @@ export class Home extends Component {
       open: false,
       clickedVideo: {},
       flagging: false,
+      mouseX: null,
+      mouseY: null,
+      tagsDialogOpen: false,
     };
 
     window.onscroll = () => {
@@ -126,38 +163,148 @@ export class Home extends Component {
           const newVideos = this.state.videos.filter((v) => v.id !== video.id);
 
           this.setState({ flagging: false, videos: newVideos });
-          this.handleClose();
+          this.handlePromptClose();
         })
         .catch((err) => {
           this.setState({ flagging: false });
-          this.handleClose();
+          this.handlePromptClose();
         });
     });
   };
 
-  handlePromptOpen = (video) => {
-    this.setState({ open: true, clickedVideo: video });
+  handleMenuClick = (video, e) => {
+    this.setState({
+      mouseX: e.clientX - 2,
+      mouseY: e.clientY - 4,
+      clickedVideo: video,
+    });
   };
 
-  handleClose = () => {
-    this.setState({ open: false, clickedVideo: {} });
+  handleMenuClose = () => {
+    this.setState({ mouseX: null, mouseY: null, clickedVideo: {} });
+  };
+
+  handlePromptOpen = () => {
+    this.setState({ open: true });
+  };
+
+  handlePromptClose = () => {
+    this.setState({ open: false });
+    this.handleMenuClose();
+  };
+
+  handleTagsDialogOpen = () => {
+    this.setState({ tagsDialogOpen: true });
+  };
+
+  handleTagsDialogClose = () => {
+    this.setState({ tagsDialogOpen: false });
+    this.handleMenuClose();
   };
 
   render() {
-    const { error, loading, hasMore, videos, open, clickedVideo, flagging } =
-      this.state;
+    const {
+      error,
+      loading,
+      hasMore,
+      videos,
+      open,
+      clickedVideo,
+      flagging,
+      mouseX,
+      mouseY,
+      tagsDialogOpen,
+    } = this.state;
     const { classes, loggedIn } = this.props;
-    const { handleClose, handlePromptOpen, flagVideo } = this;
+    const {
+      flagVideo,
+      handlePromptOpen,
+      handlePromptClose,
+      handleMenuClick,
+      handleMenuClose,
+      handleTagsDialogOpen,
+      handleTagsDialogClose,
+    } = this;
+
+    const tagsDialog = (
+      <Dialog open={tagsDialogOpen} onClose={handleTagsDialogClose}>
+        <DialogTitle className={classes.title}>Edit Video Tags</DialogTitle>
+        <DialogContent>
+          <Autocomplete
+            open={tagsDialogOpen}
+            multiple
+            options={tags}
+            disableCloseOnSelect
+            getOptionLabel={(option) => option.tag_name}
+            renderOption={(option, { selected }) => (
+              <React.Fragment>
+                <Checkbox
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                  color="primary"
+                />
+                {option.tag_name}
+              </React.Fragment>
+            )}
+            style={{ width: 500, height: 340 }}
+            renderInput={(params) => (
+              <TextField {...params} variant="outlined" label="Tags" />
+            )}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            style={{ fontFamily: "inherit", fontWeight: 600 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            autoFocus
+            style={{ fontFamily: "inherit", fontWeight: 600 }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
 
     return (
       <div className={classes.root}>
-        <Dialog open={open} onClose={handleClose}>
+        <Menu
+          keepMounted
+          open={mouseY !== null}
+          onClose={handleMenuClose}
+          anchorReference="anchorPosition"
+          anchorPosition={
+            mouseY !== null && mouseX !== null
+              ? { top: mouseY, left: mouseX }
+              : undefined
+          }
+        >
+          <MenuItem className={classes.menuItemText} onClick={handlePromptOpen}>
+            Report
+          </MenuItem>
+          <MenuItem
+            className={classes.menuItemText}
+            onClick={handleTagsDialogOpen}
+          >
+            Edit Video Tags
+          </MenuItem>
+        </Menu>
+        {tagsDialog}
+
+        <Dialog open={open} onClose={handlePromptClose}>
           <DialogTitle className={classes.title}>
             Are you sure you want to report this video?
           </DialogTitle>
           <DialogActions>
             <Button
-              onClick={handleClose}
+              onClick={handlePromptClose}
               color="secondary"
               style={{ fontFamily: "inherit", fontWeight: 600 }}
             >
@@ -177,7 +324,17 @@ export class Home extends Component {
             </Button>
           </DialogActions>
         </Dialog>
-        <Grid container spacing={6}>
+        {tags.map((tag) => (
+          <Chip
+            key={tag.tag_name}
+            label={tag.tag_name}
+            clickable
+            color="primary"
+            variant="outlined"
+            style={{ margin: 5 }}
+          />
+        ))}
+        <Grid container spacing={6} style={{ marginTop: 10 }}>
           {videos.map((video) => (
             <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
               <Card style={{ maxWidth: 380 }}>
@@ -198,15 +355,13 @@ export class Home extends Component {
                   style={{ display: "flex", justifyContent: "space-between" }}
                 >
                   {loggedIn && (
-                    <Button
+                    <IconButton
                       size="small"
-                      color="secondary"
-                      startIcon={<ReportIcon />}
-                      style={{ fontFamily: "inherit", fontWeight: 600 }}
-                      onClick={() => handlePromptOpen(video)}
+                      color="primary"
+                      onClick={(e) => handleMenuClick(video, e)}
                     >
-                      Report
-                    </Button>
+                      <MoreIcon />
+                    </IconButton>
                   )}
 
                   <Button

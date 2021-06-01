@@ -11,6 +11,21 @@ import Login from "./Login";
 import Nav from "./Nav";
 import Video from "./Video";
 import { axiosInstance } from "../axiosInstance";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+
+const theme = createMuiTheme({
+  typography: {
+    fontFamily: ["Montserrat"].join(","),
+  },
+  palette: {
+    primary: {
+      main: "#185adb",
+    },
+    secondary: {
+      main: "#cf0000",
+    },
+  },
+});
 
 class App extends Component {
   state = {
@@ -83,32 +98,34 @@ class App extends Component {
     const { username, password, error, loggedIn, loginLoading } = this.state;
 
     return (
-      <Router>
-        <div>
-          <Nav loggedIn={loggedIn} handleLogout={handleLogout} />
-          <Switch>
-            {loggedIn ? <Redirect from="/login" to="/" /> : ""}
-            <Route exact path="/">
-              <Home loggedIn={loggedIn} />
-            </Route>
-            <Route
-              path="/login"
-              children={
-                <Login
-                  username={username}
-                  password={password}
-                  loginLoading={loginLoading}
-                  error={error}
-                  handleChange={handleChange}
-                  handleSubmit={handleSubmit}
-                />
-              }
-            ></Route>
+      <ThemeProvider theme={theme}>
+        <Router>
+          <div>
+            <Nav loggedIn={loggedIn} handleLogout={handleLogout} />
+            <Switch>
+              {loggedIn ? <Redirect from="/login" to="/" /> : ""}
+              <Route exact path="/">
+                <Home loggedIn={loggedIn} />
+              </Route>
+              <Route
+                path="/login"
+                children={
+                  <Login
+                    username={username}
+                    password={password}
+                    loginLoading={loginLoading}
+                    error={error}
+                    handleChange={handleChange}
+                    handleSubmit={handleSubmit}
+                  />
+                }
+              ></Route>
 
-            <Route path="/:slug" children={<Video />} />
-          </Switch>
-        </div>
-      </Router>
+              <Route path="/:slug" children={<Video />} />
+            </Switch>
+          </div>
+        </Router>
+      </ThemeProvider>
     );
   }
 }
