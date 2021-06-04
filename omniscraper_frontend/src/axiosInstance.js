@@ -1,10 +1,14 @@
 import axios from "axios";
 
+const baseURL ="http://127.0.0.1:8000/api/"
+
 export const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
+  baseURL: baseURL,
   timeout: 5000,
   headers: {
-    Authorization: `JWT ${localStorage.getItem("access_token")}`,
+    Authorization: localStorage.getItem("access_token")
+      ? `JWT ${localStorage.getItem("access_token")}`
+      : null,
     "Content-Type": "application/json",
     accept: "application/json",
   },
@@ -17,26 +21,46 @@ axiosInstance.interceptors.response.use(
 
     if (
       error.response.status === 401 &&
+      originalRequest.url === baseURL+"token/refresh/"
+    ) {
+      window.location.href = "login/";
+      return Promise.reject(error);
+    }
+
+    if (
+      error.response.data.code === "token_not_valid" &&
+      error.response.status === 401 &&
       error.response.statusText === "Unauthorized"
     ) {
-      const refresh_token = localStorage.getItem(refresh_token);
+      const refreshToken = localStorage.getItem("refresh_token");
 
-      return axiosInstance
-        .post("/token/refresh/", { refresh: refresh_token })
-        .then((response) => {
-          localStorage.setItem("access_token", response.data.access);
-          localStorage.setItem("refresh_token", response.data.refresh);
+      if (resfreshToken) {
+        const tokenParts = JSON.parse(atob(refreshToken.split("."[1])));
+        const now = Math.ceil(Date.now() / 1000);
 
-          axiosInstance.defaults.headers["Authorization"] =
-            "JWT" + response.data.access;
-          originalRequest.headers["Authorization"] =
-            "JWT" + response.data.access;
+        if (tokenParts.exp > now) {
+          return axiosInstance
+            .post("token/refresh/", { refresh: refreshToken })
+            .then((response) => {
+              localStorage.setItem("access_token", response.data.access);
+              localStorage.setItem("refresh_token", response.data.refresh);
 
-          return axiosInstance(originalRequest);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+              axiosInstance.defaults.headers["Authorization"] =
+                "JWT" + response.data.access;
+              originalRequest.headers["Authorization"] =
+                "JWT" + response.data.access;
+
+              return axiosInstance(originalRequest);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
+        } else {
+          window.location.href = "/login";
+        }
+      } else {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   }
