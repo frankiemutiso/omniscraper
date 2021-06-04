@@ -9,7 +9,6 @@ const styles = (theme) => ({
     color: "white",
     textDecoration: "none",
     cursor: "pointer",
-    fontWeight: 600,
   },
 });
 
@@ -25,7 +24,6 @@ export class Nav extends Component {
               style={{
                 flexGrow: 1,
                 textTransform: "uppercase",
-                fontFamily: "inherit",
                 letterSpacing: "0.1em",
               }}
             >
@@ -43,9 +41,6 @@ export class Nav extends Component {
             <div>
               {loggedIn ? (
                 <React.Fragment>
-                  <Link className={classes.navLink} style={{ marginRight: 16 }}>
-                    Create tag
-                  </Link>
                   <Link
                     to="/"
                     className={classes.navLink}

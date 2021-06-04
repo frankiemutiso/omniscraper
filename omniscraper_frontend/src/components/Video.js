@@ -113,7 +113,6 @@ export class Video extends Component {
                 style={{
                   color: "#185adb",
                   fontFamily: "inherit",
-                  fontWeight: 600,
                 }}
                 startIcon={<TwitterIcon />}
                 href={`https://twitter.com/i/status/${video.parent_tweet_id}`}
@@ -127,7 +126,7 @@ export class Video extends Component {
                 color="primary"
                 variant="outlined"
                 className={classes.buttons}
-                style={{ fontWeight: 600, fontFamily: "inherit" }}
+                style={{ fontFamily: "inherit" }}
                 startIcon={<Download />}
                 onClick={() => downloadVideo(video)}
               >
@@ -139,13 +138,13 @@ export class Video extends Component {
 
         {/* mobile UI */}
         <Hidden mdUp>
-          <Card style={{ width: 380 }}>
+          <Card style={{ width: "100%" }}>
             <CardActionArea>
               <CardMedia
                 component="video"
-                height="160"
+                // height="60vh"
                 src={video.url}
-                style={{ objectFit: "contain" }}
+                style={{ objectFit: "contain", height: "75vh" }}
                 controls
                 disablePictureInPicture
                 controlsList="nodownload"
@@ -161,7 +160,6 @@ export class Video extends Component {
                 style={{
                   color: "#185adb",
                   fontFamily: "inherit",
-                  fontWeight: 600,
                 }}
                 startIcon={<TwitterIcon />}
                 href={`https://twitter.com/i/status/${video.parent_tweet_id}`}
@@ -175,7 +173,7 @@ export class Video extends Component {
                 color="primary"
                 variant="outlined"
                 className={classes.buttons}
-                style={{ fontWeight: 600, fontFamily: "inherit" }}
+                style={{ fontFamily: "inherit" }}
                 startIcon={<Download />}
                 onClick={() => downloadVideo(video)}
               >
