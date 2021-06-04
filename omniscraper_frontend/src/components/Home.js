@@ -18,15 +18,20 @@ import {
   Checkbox,
   TextField,
   Chip,
+  Fab,
+  Hidden,
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
 import VisibilityIcon from "@material-ui/icons/Visibility";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
+import AddIcon from "@material-ui/icons/Add";
+import CloseIcon from "@material-ui/icons/Close";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { axiosInstance } from "../axiosInstance";
 
 const styles = (theme) => ({
   root: {
@@ -35,6 +40,7 @@ const styles = (theme) => ({
     marginRight: 40,
     marginLeft: 40,
     paddingTop: 100,
+    // position: "relative",
   },
   spinner: {
     color: "#185adb",
@@ -53,7 +59,20 @@ const styles = (theme) => ({
   },
   menuItemText: {
     fontFamily: "inherit",
-    fontWeight: 600,
+  },
+  fab: {
+    margin: 0,
+    left: "auto",
+    top: "auto",
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2),
+    textTransform: "none",
+  },
+  closeButton: {
+    position: "absolute",
+    right: theme.spacing(1),
+    top: theme.spacing(1),
   },
 });
 
@@ -72,6 +91,7 @@ const tags = [
   { tag_name: "History" },
   { tag_name: "Sports" },
   { tag_name: "Art" },
+  { tag_name: "News" },
 ];
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -84,6 +104,8 @@ export class Home extends Component {
       error: false,
       loading: false,
       videos: [],
+      videoTags: [],
+      loadingTags: false,
       hasMore: true,
       offset: 0,
       limit: 12,
@@ -93,6 +115,9 @@ export class Home extends Component {
       mouseX: null,
       mouseY: null,
       tagsDialogOpen: false,
+      createTagDialogOpen: false,
+      tagName: "",
+      description: "",
     };
 
     window.onscroll = () => {
@@ -114,7 +139,31 @@ export class Home extends Component {
   }
 
   componentDidMount = () => {
+    this.loadTags();
     this.loadVideos();
+  };
+
+  loadTags = () => {
+    this.setState({ tagsLoading: true }, () => {
+      const url = "http://127.0.0.1:8000/api/tags/";
+      const { videoTags } = this.state;
+
+      axios
+        .get(url)
+        .then((res) => {
+          const newTags = res.data.tags;
+
+          this.setState({
+            videoTags: [...videoTags, ...newTags],
+            tagsLoading: false,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            tagsLoading: false,
+          });
+        });
+    });
   };
 
   loadVideos = () => {
@@ -146,28 +195,53 @@ export class Home extends Component {
   };
 
   flagVideo = (video) => {
-    const url = `http://127.0.0.1:8000/api/${video.slug}`;
+    const url = `${video.slug}`;
     const flagged = true;
 
     this.setState({ flagging: true }, () => {
-      axios
+      axiosInstance
         .put(url, {
           id: video.id,
           url: video.url,
-          date_saved_utc: video.date_saved_utc,
           parent_tweet_id: video.parent_tweet_id,
           slug: video.slug,
           flagged: flagged,
         })
-        .then(() => {
-          const newVideos = this.state.videos.filter((v) => v.id !== video.id);
-
-          this.setState({ flagging: false, videos: newVideos });
-          this.handlePromptClose();
+        .then((response) => {
+          if (response.status === 200) {
+            const newVideos = this.state.videos.filter(
+              (v) => v.id !== video.id
+            );
+            this.setState({ flagging: false, videos: newVideos });
+            this.handlePromptClose();
+          }
         })
         .catch((err) => {
           this.setState({ flagging: false });
           this.handlePromptClose();
+        });
+    });
+  };
+
+  handleCreateTag = () => {
+    const url = "http://127.0.0.1:8000/api/tags/";
+    const { tagName, description } = this.state;
+
+    this.setState({ creatingTag: true }, () => {
+      axios
+        .post(url, {
+          tag_name: tagName,
+          description,
+        })
+        .then((response) => {
+          if (response.status === 201) {
+            this.setState({ creatingTag: false });
+            this.handleCreateDialogClose();
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          this.setState({ creatingTag: false });
         });
     });
   };
@@ -202,6 +276,18 @@ export class Home extends Component {
     this.handleMenuClose();
   };
 
+  handleCreateDialogOpen = () => {
+    this.setState({ createTagDialogOpen: true });
+  };
+
+  handleCreateDialogClose = () => {
+    this.setState({ createTagDialogOpen: false });
+  };
+
+  handleTagChange = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
+
   render() {
     const {
       error,
@@ -214,6 +300,11 @@ export class Home extends Component {
       mouseX,
       mouseY,
       tagsDialogOpen,
+      createTagDialogOpen,
+      tagName,
+      description,
+      creatingTag,
+      videoTags,
     } = this.state;
     const { classes, loggedIn } = this.props;
     const {
@@ -224,16 +315,98 @@ export class Home extends Component {
       handleMenuClose,
       handleTagsDialogOpen,
       handleTagsDialogClose,
+      handleCreateDialogOpen,
+      handleCreateDialogClose,
+      handleTagChange,
+      handleCreateTag,
     } = this;
 
+    const createTagDialog = (
+      <Dialog
+        fullWidth={true}
+        open={createTagDialogOpen}
+        onClose={handleCreateDialogClose}
+      >
+        <DialogTitle
+          className={classes.title}
+          style={{ flex: 1, display: "flex", justifyContent: "space-between" }}
+        >
+          Create a tag
+          <IconButton
+            className={classes.closeButton}
+            onClick={handleCreateDialogClose}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent>
+          <TextField
+            required
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            label="Tag name"
+            name="tagName"
+            onChange={handleTagChange}
+            value={tagName}
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            fullWidth
+            label="Description (optional)"
+            multiline={true}
+            name="description"
+            onChange={handleTagChange}
+            value={description}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="secondary"
+            style={{ fontFamily: "inherit", fontWeight: 600 }}
+            onClick={handleCreateDialogClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            color="primary"
+            variant="contained"
+            autoFocus
+            style={{ fontFamily: "inherit", fontWeight: 600 }}
+            onClick={handleCreateTag}
+            endIcon={
+              creatingTag ? <CircularProgress size={16} color="white" /> : ""
+            }
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
+
     const tagsDialog = (
-      <Dialog open={tagsDialogOpen} onClose={handleTagsDialogClose}>
-        <DialogTitle className={classes.title}>Edit Video Tags</DialogTitle>
+      <Dialog
+        open={tagsDialogOpen}
+        onClose={handleTagsDialogClose}
+        fullWidth={true}
+      >
+        <DialogTitle className={classes.title}>
+          Edit video tags
+          <IconButton
+            className={classes.closeButton}
+            onClick={handleTagsDialogClose}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
         <DialogContent>
           <Autocomplete
+            fullWidth={true}
             open={tagsDialogOpen}
             multiple
-            options={tags}
+            options={videoTags}
             disableCloseOnSelect
             getOptionLabel={(option) => option.tag_name}
             renderOption={(option, { selected }) => (
@@ -248,7 +421,7 @@ export class Home extends Component {
                 {option.tag_name}
               </React.Fragment>
             )}
-            style={{ width: 500, height: 340 }}
+            style={{ width: "100%", height: 340 }}
             renderInput={(params) => (
               <TextField {...params} variant="outlined" label="Tags" />
             )}
@@ -258,6 +431,7 @@ export class Home extends Component {
           <Button
             color="secondary"
             style={{ fontFamily: "inherit", fontWeight: 600 }}
+            onClick={handleTagsDialogClose}
           >
             Cancel
           </Button>
@@ -293,10 +467,11 @@ export class Home extends Component {
             className={classes.menuItemText}
             onClick={handleTagsDialogOpen}
           >
-            Edit Video Tags
+            Edit video tags
           </MenuItem>
         </Menu>
         {tagsDialog}
+        {createTagDialog}
 
         <Dialog open={open} onClose={handlePromptClose}>
           <DialogTitle className={classes.title}>
@@ -305,35 +480,37 @@ export class Home extends Component {
           <DialogActions>
             <Button
               onClick={handlePromptClose}
-              color="secondary"
-              style={{ fontFamily: "inherit", fontWeight: 600 }}
+              color="primary"
+              style={{ fontFamily: "inherit" }}
             >
-              No
+              Cancel
             </Button>
             <Button
               onClick={() => flagVideo(clickedVideo)}
-              color="primary"
+              color="secondary"
               variant="contained"
               autoFocus
-              style={{ fontFamily: "inherit", fontWeight: 600 }}
+              style={{ fontFamily: "inherit" }}
               endIcon={
                 flagging ? <CircularProgress size={16} color="white" /> : ""
               }
             >
-              Yes
+              Report
             </Button>
           </DialogActions>
         </Dialog>
-        {tags.map((tag) => (
-          <Chip
-            key={tag.tag_name}
-            label={tag.tag_name}
-            clickable
-            color="primary"
-            variant="outlined"
-            style={{ margin: 5 }}
-          />
-        ))}
+        <React.Fragment>
+          {videoTags.map((tag) => (
+            <Chip
+              key={tag.tag_name}
+              label={tag.tag_name}
+              clickable
+              color="primary"
+              variant="outlined"
+              style={{ margin: 5 }}
+            />
+          ))}
+        </React.Fragment>
         <Grid container spacing={6} style={{ marginTop: 10 }}>
           {videos.map((video) => (
             <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
@@ -374,7 +551,6 @@ export class Home extends Component {
                     className={classes.buttons}
                     style={{
                       fontFamily: "inherit",
-                      fontWeight: 600,
                       marginLeft: "auto",
                     }}
                   >
@@ -385,6 +561,32 @@ export class Home extends Component {
             </Grid>
           ))}
         </Grid>
+
+        {loggedIn && (
+          <React.Fragment>
+            <Hidden mdDown>
+              <Fab
+                className={classes.fab}
+                color="primary"
+                variant="extended"
+                size="medium"
+                onClick={handleCreateDialogOpen}
+              >
+                <AddIcon style={{ marginRight: 8 }} />
+                Create tag
+              </Fab>
+            </Hidden>
+            <Hidden mdUp>
+              <Fab
+                className={classes.fab}
+                color="primary"
+                onClick={handleCreateDialogOpen}
+              >
+                <AddIcon />
+              </Fab>
+            </Hidden>
+          </React.Fragment>
+        )}
 
         {error && <div>{error}</div>}
         {loading && (
