@@ -12,6 +12,7 @@ urlpatterns = [
     path("blacklist/", views.LogoutAndBlacklistToken().as_view(), name="blacklist"),
     path('favicon.ico', RedirectView.as_view(
         url=staticfiles_storage.url("favicon.ico"))),
-    path('videos/', views.TwitterVideosList.as_view()),
-    path('<slug:slug>', views.TwitterVideoDetail.as_view()),
+    path('videos/', views.TwitterVideosList.as_view(), name="videos"),
+    path('<slug:slug>', views.TwitterVideoDetail.as_view(), name="video"),
+    path("tags/", views.VideoTagsList.as_view(), name="video_tags")
 ]

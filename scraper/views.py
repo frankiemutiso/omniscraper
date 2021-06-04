@@ -57,13 +57,13 @@
 
 
 from django.http.response import Http404
-from .models import TwitterVideo
-from .serializers import TwitterVideoSerializer
+from .models import TwitterVideo, VideoTag
+from .serializers import TwitterVideoSerializer, VideoTagSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 def infinite_filter(request):
@@ -127,4 +127,19 @@ class TwitterVideoDetail(APIView):
             serializer.save()
             return Response(serializer.data)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VideoTagsList(APIView):
+    def get(self, request):
+        video_tags = VideoTag.objects.all()
+        serializer = VideoTagSerializer(video_tags, many=True)
+
+        return Response({"tags": serializer.data})
+
+    def post(self, request):
+        serializer = VideoTagSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
