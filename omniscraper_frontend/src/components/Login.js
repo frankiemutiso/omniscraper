@@ -33,7 +33,7 @@ const styles = (theme) => ({
   },
   avatar: {
     margin: theme.spacing(2),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: "black",
   },
   form: {
     width: "100%",
@@ -49,17 +49,16 @@ const styles = (theme) => ({
 
 export class Login extends Component {
   state = {
-    error: "",
     showPassword: false,
   };
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate(prevProps) {
     if (prevProps.error !== this.props.error) {
       this.setState({ error: this.props.error });
 
       console.log("Error on login form", this.props.error);
     }
-  };
+  }
 
   handleClickShowPassword = () => {
     this.setState({ showPassword: !this.state.showPassword });
@@ -77,9 +76,10 @@ export class Login extends Component {
       username,
       password,
       loginLoading,
+      error,
     } = this.props;
 
-    const { error, showPassword } = this.state;
+    const { showPassword } = this.state;
 
     const { handleClickShowPassword, handleMouseDownPassword } = this;
 
