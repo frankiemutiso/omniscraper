@@ -5,7 +5,8 @@ from .models import TwitterVideo, VideoTag
 class TwitterVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = TwitterVideo
-        fields = ['id', "flagged", "parent_tweet_id", "slug", "url"]
+        fields = ['id', "slug", "url", "parent_tweet_id", "flagged", "tags"]
+        extra_kwargs = {"tags": {"required": False}}
 
 
 class VideoTagSerializer(serializers.ModelSerializer):
@@ -13,6 +14,6 @@ class VideoTagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = VideoTag
-        fields = ["id", "tag_name", "description", "twitter_videos"]
+        fields = ["id", "tag_name", "slug", "description", "twitter_videos"]
         extra_kwargs = {"description": {"required":  False},
                         "twitter_videos": {"required":  False}}
