@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import AppBar from "@material-ui/core/AppBar";
-import { Toolbar, withStyles } from "@material-ui/core";
+import { Button, Toolbar, withStyles } from "@material-ui/core";
 
 import { Link } from "react-router-dom";
 
 const styles = (theme) => ({
   navLink: {
-    color: "white",
     textDecoration: "none",
     cursor: "pointer",
   },
@@ -14,7 +13,8 @@ const styles = (theme) => ({
 
 export class Nav extends Component {
   render() {
-    const { loggedIn, handleLogout, classes } = this.props;
+    const { loggedIn, handleLogout, classes, handleClearClickedTag } =
+      this.props;
 
     return (
       <div style={{ flexGrow: 1, margin: 0 }}>
@@ -26,6 +26,7 @@ export class Nav extends Component {
                 textTransform: "uppercase",
                 letterSpacing: "0.1em",
               }}
+              onClick={handleClearClickedTag}
             >
               <Link
                 to="/"
@@ -41,18 +42,27 @@ export class Nav extends Component {
             <div>
               {loggedIn ? (
                 <React.Fragment>
-                  <Link
+                  <Button
+                    size="small"
+                    variant="contained"
+                    component={Link}
                     to="/"
                     className={classes.navLink}
                     onClick={handleLogout}
                   >
                     Logout
-                  </Link>
+                  </Button>
                 </React.Fragment>
               ) : (
-                <Link to="/login" className={classes.navLink}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  component={Link}
+                  to="/login"
+                  className={classes.navLink}
+                >
                   Login
-                </Link>
+                </Button>
               )}
             </div>
           </Toolbar>
