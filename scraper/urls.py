@@ -14,5 +14,8 @@ urlpatterns = [
         url=staticfiles_storage.url("favicon.ico"))),
     path('videos/', views.TwitterVideosList.as_view(), name="videos"),
     path('<slug:slug>', views.TwitterVideoDetail.as_view(), name="video"),
-    path("tags/", views.VideoTagsList.as_view(), name="video_tags")
+    path("tags/", views.VideoTagsList.as_view(), name="video_tags"),
+    path('tags/<slug:slug>',
+         views.VideoTagDetail.as_view(), name="video_tag_detail")
+
 ]

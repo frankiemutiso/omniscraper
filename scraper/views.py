@@ -70,7 +70,7 @@ def infinite_filter(request):
     limit = request.GET.get("limit")
     offset = request.GET.get("offset")
 
-    return TwitterVideo.objects.exclude(flagged=True).order_by('date_saved_utc')[int(offset): int(offset) + int(limit)]
+    return TwitterVideo.objects.exclude(flagged=True).order_by('-date_saved_utc')[int(offset): int(offset) + int(limit)]
 
 
 def is_there_more_data(request):
@@ -129,10 +129,21 @@ class TwitterVideoDetail(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def patch(self, request, slug):
+        video = self.get_object(slug)
+        serializer = TwitterVideoSerializer(
+            video, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class VideoTagsList(APIView):
     def get(self, request):
-        video_tags = VideoTag.objects.all()
+        video_tags = VideoTag.objects.all().order_by("tag_name")
         serializer = VideoTagSerializer(video_tags, many=True)
 
         return Response({"tags": serializer.data})
@@ -143,3 +154,17 @@ class VideoTagsList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VideoTagDetail(APIView):
+    def get_object(self, slug):
+        try:
+            return VideoTag.objects.get(slug=slug).twitter_videos.all().order_by('-date_saved_utc')
+        except VideoTag.DoesNotExist:
+            raise Http404
+
+    def get(self, request, slug):
+        videos = self.get_object(slug)
+        serializer = TwitterVideoSerializer(videos, many=True)
+
+        return Response({"videos": serializer.data})
