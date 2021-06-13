@@ -5,13 +5,16 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
+import { createBrowserHistory } from "history";
 import axios from "axios";
 import Home from "./Home";
 import Login from "./Login";
 import Nav from "./Nav";
 import Video from "./Video";
 import { axiosInstance } from "../axiosInstance";
-import { createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { Chip, createMuiTheme, ThemeProvider } from "@material-ui/core";
+import FilteredVideos from "./FilteredVideos";
+import ReactGA from "react-ga";
 
 const theme = createMuiTheme({
   typography: {
@@ -34,13 +37,88 @@ class App extends Component {
     loggedIn: localStorage.getItem("access_token") ? true : false,
     loginLoading: false,
     error: null,
+    clickedTag: localStorage.getItem("clicked_tag") || null,
+    tagsLoading: false,
+    videoTags: [],
+    //
+    loading: false,
+    offset: 0,
+    limit: 12,
+    videos: [],
+    hasMore: true,
+  };
+
+  componentDidMount() {
+    this.loadTags();
+  }
+
+  loadVideos = () => {
+    this.setState({ loading: true }, () => {
+      const { offset, limit } = this.state;
+
+      axios
+        .get(
+          `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`
+        )
+        .then((res) => {
+          const newVideos = res.data.videos;
+          const hasMore = res.data.has_more;
+
+          this.setState({
+            hasMore,
+            loading: false,
+            videos: [...this.state.videos, ...newVideos],
+            offset: offset + limit,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            error: err.message,
+            loading: false,
+          });
+        });
+    });
+  };
+
+  loadTags = () => {
+    this.setState({ tagsLoading: true }, () => {
+      const url = "http://127.0.0.1:8000/api/tags/";
+
+      axios
+        .get(url)
+        .then((res) => {
+          const newTags = res.data.tags;
+
+          this.setState({
+            videoTags: newTags,
+            tagsLoading: false,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            tagsLoading: false,
+          });
+        });
+    });
+  };
+
+  handleClickedTag = (tag) => {
+    this.setState({ clickedTag: tag }, () =>
+      localStorage.setItem("clicked_tag", this.state.clickedTag)
+    );
+  };
+
+  handleClearClickedTag = () => {
+    localStorage.removeItem("clicked_tag");
+
+    this.setState({ clickedTag: null });
   };
 
   handleChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  handleSubmit = (e) => {
+  handleLogin = (e) => {
     const { username, password } = this.state;
     e.preventDefault();
 
@@ -51,11 +129,6 @@ class App extends Component {
           password,
         })
         .then((response) => {
-          if (response.data.detail) {
-            this.setState({ loggedIn: false, error: response.data.detail });
-            console.log("Error on App", response.data.detail);
-          }
-
           axiosInstance.defaults.headers["Authorization"] =
             "JWT " + response.data.access;
 
@@ -70,7 +143,6 @@ class App extends Component {
           });
         })
         .catch((error) => {
-          console.log(error.message);
           this.setState({ loggedIn: false, loginLoading: false });
         });
     });
@@ -89,24 +161,83 @@ class App extends Component {
         this.setState({ loggedIn: false });
       })
       .catch((e) => {
-        console.log(e);
+        console.log(e.statusText);
+        this.setState({ loggedIn: false });
       });
   };
 
   render() {
-    const { handleChange, handleSubmit, handleLogout } = this;
-    const { username, password, error, loggedIn, loginLoading } = this.state;
+    const {
+      handleChange,
+      handleLogin,
+      handleLogout,
+      handleClickedTag,
+      handleClearClickedTag,
+      loadVideos,
+    } = this;
+    const {
+      // error,
+      videos,
+      hasMore,
+      loading,
+      //
+      username,
+      password,
+      error,
+      loggedIn,
+      loginLoading,
+      videoTags,
+      clickedTag,
+      tagsLoading,
+    } = this.state;
+
+    const trackingId = "UA-190601275-1";
+    ReactGA.initialize(trackingId);
+
+    const history = createBrowserHistory();
+    history.listen((location) => {
+      ReactGA.set({ page: location.pathname });
+      ReactGA.pageview(location.pathname);
+    });
 
     return (
       <ThemeProvider theme={theme}>
-        <Router>
+        <Router history={history}>
           <div>
-            <Nav loggedIn={loggedIn} handleLogout={handleLogout} />
+            <Nav
+              loggedIn={loggedIn}
+              handleLogout={handleLogout}
+              handleClearClickedTag={handleClearClickedTag}
+            />
+
             <Switch>
               {loggedIn ? <Redirect from="/login" to="/" /> : ""}
               <Route exact path="/">
-                <Home loggedIn={loggedIn} />
+                <Home
+                  loggedIn={loggedIn}
+                  videoTags={videoTags}
+                  handleClickedTag={handleClickedTag}
+                  clickedTag={clickedTag}
+                  tagsLoading={tagsLoading}
+                  loading={loading}
+                  hasMore={hasMore}
+                  videos={videos}
+                  error={error}
+                  loadVideos={loadVideos}
+                />
               </Route>
+              <Route
+                path="/tags/:slug"
+                children={
+                  <FilteredVideos
+                    videoTags={videoTags}
+                    loggedIn={loggedIn}
+                    handleClickedTag={handleClickedTag}
+                    clickedTag={clickedTag}
+                    tagsLoading={tagsLoading}
+                  />
+                }
+              />
               <Route
                 path="/login"
                 children={
@@ -116,7 +247,7 @@ class App extends Component {
                     loginLoading={loginLoading}
                     error={error}
                     handleChange={handleChange}
-                    handleSubmit={handleSubmit}
+                    handleSubmit={handleLogin}
                   />
                 }
               ></Route>
