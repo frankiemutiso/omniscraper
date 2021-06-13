@@ -32,6 +32,8 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
+import debounce from "lodash.debounce";
+import { Skeleton } from "@material-ui/lab";
 
 const styles = (theme) => ({
   root: {
@@ -43,7 +45,7 @@ const styles = (theme) => ({
     // position: "relative",
   },
   spinner: {
-    color: "#185adb",
+    // color: "#185adb",
     margin: 20,
   },
   buttons: {
@@ -76,39 +78,16 @@ const styles = (theme) => ({
   },
 });
 
-const tags = [
-  { tag_name: "Science" },
-  { tag_name: "Comedy" },
-  { tag_name: "Education" },
-  { tag_name: "Politics" },
-  { tag_name: "Football" },
-  { tag_name: "Religion" },
-  { tag_name: "Business" },
-  { tag_name: "Lifestyle" },
-  { tag_name: "Recipes" },
-  { tag_name: "TikTok" },
-  { tag_name: "DIY" },
-  { tag_name: "History" },
-  { tag_name: "Sports" },
-  { tag_name: "Art" },
-  { tag_name: "News" },
-];
-
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" color="primary" />;
+
+const PLACEHOLDERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: false,
-      loading: false,
-      videos: [],
-      videoTags: [],
       loadingTags: false,
-      hasMore: true,
-      offset: 0,
-      limit: 12,
       open: false,
       clickedVideo: {},
       flagging: false,
@@ -118,81 +97,39 @@ export class Home extends Component {
       createTagDialogOpen: false,
       tagName: "",
       description: "",
-    };
-
-    window.onscroll = () => {
-      const {
-        loadVideos,
-        state: { error, loading, hasMore },
-      } = this;
-
-      if (error || loading || !hasMore) return;
-
-      if (
-        document.documentElement.scrollHeight -
-          document.documentElement.scrollTop ===
-        document.documentElement.clientHeight
-      ) {
-        loadVideos();
-      }
+      selectedTagsIds: [],
+      editingVideoTags: false,
+      checkedTags: [],
+      prevY: 0,
     };
   }
 
-  componentDidMount = () => {
-    this.loadTags();
-    this.loadVideos();
-  };
+  componentDidMount() {
+    this.props.loadVideos();
 
-  loadTags = () => {
-    this.setState({ tagsLoading: true }, () => {
-      const url = "http://127.0.0.1:8000/api/tags/";
-      const { videoTags } = this.state;
+    var options = {
+      root: null,
+      rootMargin: "0px",
+      threshold: 1.0,
+    };
 
-      axios
-        .get(url)
-        .then((res) => {
-          const newTags = res.data.tags;
+    this.observer = new IntersectionObserver(
+      this.handleObserver.bind(this),
+      options
+    );
 
-          this.setState({
-            videoTags: [...videoTags, ...newTags],
-            tagsLoading: false,
-          });
-        })
-        .catch((err) => {
-          this.setState({
-            tagsLoading: false,
-          });
-        });
-    });
-  };
+    this.observer.observe(this.loadingRef);
+  }
 
-  loadVideos = () => {
-    this.setState({ loading: true }, () => {
-      const { offset, limit } = this.state;
+  handleObserver = debounce((entities, observer) => {
+    const { loadVideos } = this.props;
 
-      axios
-        .get(
-          `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`
-        )
-        .then((res) => {
-          const newVideos = res.data.videos;
-          const hasMore = res.data.has_more;
-
-          this.setState({
-            hasMore,
-            loading: false,
-            videos: [...this.state.videos, ...newVideos],
-            offset: offset + limit,
-          });
-        })
-        .catch((err) => {
-          this.setState({
-            error: err.message,
-            loading: false,
-          });
-        });
-    });
-  };
+    const y = entities[0].boundingClientRect.y;
+    if (this.state.prevY > y) {
+      loadVideos();
+    }
+    this.setState({ prevY: y });
+  }, 3000);
 
   flagVideo = (video) => {
     const url = `${video.slug}`;
@@ -226,9 +163,10 @@ export class Home extends Component {
   handleCreateTag = () => {
     const url = "http://127.0.0.1:8000/api/tags/";
     const { tagName, description } = this.state;
+    const { loadTags } = this.props;
 
     this.setState({ creatingTag: true }, () => {
-      axios
+      axiosInstance
         .post(url, {
           tag_name: tagName,
           description,
@@ -237,6 +175,7 @@ export class Home extends Component {
           if (response.status === 201) {
             this.setState({ creatingTag: false });
             this.handleCreateDialogClose();
+            loadTags();
           }
         })
         .catch((err) => {
@@ -247,6 +186,9 @@ export class Home extends Component {
   };
 
   handleMenuClick = (video, e) => {
+    const { videoTags } = this.props;
+    this.handleCheckedTags(videoTags, video);
+
     this.setState({
       mouseX: e.clientX - 2,
       mouseY: e.clientY - 4,
@@ -281,19 +223,49 @@ export class Home extends Component {
   };
 
   handleCreateDialogClose = () => {
-    this.setState({ createTagDialogOpen: false });
+    this.setState({ createTagDialogOpen: false, tagName: "", description: "" });
   };
 
   handleTagChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
+  handleSelectedTagsChange = (e, values) => {
+    this.setState({
+      selectedTagsIds: values.map((value) => value.id),
+    });
+  };
+
+  handleEditVideoTags = () => {
+    const { selectedTagsIds, clickedVideo } = this.state;
+
+    const url = `http://127.0.0.1:8000/api/${clickedVideo.slug}`;
+
+    this.setState({ editingVideoTags: true }, () => {
+      axios
+        .patch(url, {
+          tags: selectedTagsIds,
+        })
+        .then((res) => {
+          console.log(res.status);
+          this.setState({ editingVideoTags: false });
+          this.handleTagsDialogClose();
+        })
+        .catch((err) => {
+          console.log(err.message);
+          this.setState({ editingVideoTags: false });
+          this.handleTagsDialogClose();
+        });
+    });
+  };
+
+  handleCheckedTags = (tags, clickedVideo) => {
+    const checked = tags.filter((t) => clickedVideo.tags.includes(t.id));
+    this.setState({ checkedTags: checked });
+  };
+
   render() {
     const {
-      error,
-      loading,
-      hasMore,
-      videos,
       open,
       clickedVideo,
       flagging,
@@ -304,9 +276,13 @@ export class Home extends Component {
       tagName,
       description,
       creatingTag,
-      videoTags,
+      editingVideoTags,
+      checkedTags,
     } = this.state;
-    const { classes, loggedIn } = this.props;
+
+    const { classes, loggedIn, videoTags, error, videos, hasMore, loading } =
+      this.props;
+
     const {
       flagVideo,
       handlePromptOpen,
@@ -319,6 +295,8 @@ export class Home extends Component {
       handleCreateDialogClose,
       handleTagChange,
       handleCreateTag,
+      handleSelectedTagsChange,
+      handleEditVideoTags,
     } = this;
 
     const createTagDialog = (
@@ -406,9 +384,12 @@ export class Home extends Component {
             fullWidth={true}
             open={tagsDialogOpen}
             multiple
+            onChange={handleSelectedTagsChange}
             options={videoTags}
             disableCloseOnSelect
+            filterSelectedOptions={true}
             getOptionLabel={(option) => option.tag_name}
+            defaultValue={checkedTags}
             renderOption={(option, { selected }) => (
               <React.Fragment>
                 <Checkbox
@@ -421,7 +402,7 @@ export class Home extends Component {
                 {option.tag_name}
               </React.Fragment>
             )}
-            style={{ width: "100%", height: 340 }}
+            style={{ width: "100%", height: "52vh" }}
             renderInput={(params) => (
               <TextField {...params} variant="outlined" label="Tags" />
             )}
@@ -440,6 +421,14 @@ export class Home extends Component {
             variant="contained"
             autoFocus
             style={{ fontFamily: "inherit", fontWeight: 600 }}
+            onClick={handleEditVideoTags}
+            endIcon={
+              editingVideoTags ? (
+                <CircularProgress size={16} color="white" />
+              ) : (
+                ""
+              )
+            }
           >
             Save
           </Button>
@@ -448,160 +437,178 @@ export class Home extends Component {
     );
 
     return (
-      <div className={classes.root}>
-        <Menu
-          keepMounted
-          open={mouseY !== null}
-          onClose={handleMenuClose}
-          anchorReference="anchorPosition"
-          anchorPosition={
-            mouseY !== null && mouseX !== null
-              ? { top: mouseY, left: mouseX }
-              : undefined
-          }
-        >
-          <MenuItem className={classes.menuItemText} onClick={handlePromptOpen}>
-            Report
-          </MenuItem>
-          <MenuItem
-            className={classes.menuItemText}
-            onClick={handleTagsDialogOpen}
+      <React.Fragment>
+        <div className={classes.root}>
+          <Menu
+            keepMounted
+            open={mouseY !== null}
+            onClose={handleMenuClose}
+            anchorReference="anchorPosition"
+            anchorPosition={
+              mouseY !== null && mouseX !== null
+                ? { top: mouseY, left: mouseX }
+                : undefined
+            }
           >
-            Edit video tags
-          </MenuItem>
-        </Menu>
-        {tagsDialog}
-        {createTagDialog}
-
-        <Dialog open={open} onClose={handlePromptClose}>
-          <DialogTitle className={classes.title}>
-            Are you sure you want to report this video?
-          </DialogTitle>
-          <DialogActions>
-            <Button
-              onClick={handlePromptClose}
-              color="primary"
-              style={{ fontFamily: "inherit" }}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={() => flagVideo(clickedVideo)}
-              color="secondary"
-              variant="contained"
-              autoFocus
-              style={{ fontFamily: "inherit" }}
-              endIcon={
-                flagging ? <CircularProgress size={16} color="white" /> : ""
-              }
+            <MenuItem
+              className={classes.menuItemText}
+              onClick={handlePromptOpen}
             >
               Report
-            </Button>
-          </DialogActions>
-        </Dialog>
-        <React.Fragment>
-          {videoTags.map((tag) => (
-            <Chip
-              key={tag.tag_name}
-              label={tag.tag_name}
-              clickable
-              color="primary"
-              variant="outlined"
-              style={{ margin: 5 }}
-            />
-          ))}
-        </React.Fragment>
-        <Grid container spacing={6} style={{ marginTop: 10 }}>
-          {videos.map((video) => (
-            <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
-              <Card style={{ maxWidth: 380 }}>
-                <CardActionArea>
-                  <CardMedia
-                    component={Link}
-                    to={`/${video.slug}`}
-                    component="video"
-                    height="160"
-                    disablePictureInPicture
-                    controlsList="nodownload"
-                    src={video.url}
-                    style={{ objectFit: "cover" }}
-                    onContextMenu={(e) => e.preventDefault()}
-                  ></CardMedia>
-                </CardActionArea>
-                <CardActions
-                  style={{ display: "flex", justifyContent: "space-between" }}
-                >
-                  {loggedIn && (
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={(e) => handleMenuClick(video, e)}
-                    >
-                      <MoreIcon />
-                    </IconButton>
-                  )}
+            </MenuItem>
+            <MenuItem
+              className={classes.menuItemText}
+              onClick={handleTagsDialogOpen}
+            >
+              Edit video tags
+            </MenuItem>
+          </Menu>
+          {tagsDialog}
+          {createTagDialog}
 
-                  <Button
-                    component={Link}
-                    to={`/${video.slug}`}
-                    size="small"
-                    variant="outlined"
-                    color="primary"
-                    startIcon={<VisibilityIcon />}
-                    className={classes.buttons}
-                    style={{
-                      fontFamily: "inherit",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    View
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        {loggedIn && (
-          <React.Fragment>
-            <Hidden mdDown>
-              <Fab
-                className={classes.fab}
+          <Dialog open={open} onClose={handlePromptClose}>
+            <DialogTitle className={classes.title}>
+              Are you sure you want to report this video?
+            </DialogTitle>
+            <DialogActions>
+              <Button
+                onClick={handlePromptClose}
                 color="primary"
-                variant="extended"
-                size="medium"
-                onClick={handleCreateDialogOpen}
+                style={{ fontFamily: "inherit" }}
               >
-                <AddIcon style={{ marginRight: 8 }} />
-                Create tag
-              </Fab>
-            </Hidden>
-            <Hidden mdUp>
-              <Fab
-                className={classes.fab}
-                color="primary"
-                onClick={handleCreateDialogOpen}
+                Cancel
+              </Button>
+              <Button
+                onClick={() => flagVideo(clickedVideo)}
+                color="secondary"
+                variant="contained"
+                autoFocus
+                style={{ fontFamily: "inherit" }}
+                endIcon={
+                  flagging ? <CircularProgress size={16} color="white" /> : ""
+                }
               >
-                <AddIcon />
-              </Fab>
-            </Hidden>
-          </React.Fragment>
-        )}
+                Report
+              </Button>
+            </DialogActions>
+          </Dialog>
 
-        {error && <div>{error}</div>}
-        {loading && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <CircularProgress className={classes.spinner} />
+          <div>
+            {videoTags.map((tag) => (
+              <Chip
+                component={Link}
+                to={`/tags/${tag.slug}`}
+                key={tag.tag_name}
+                label={tag.tag_name}
+                clickable
+                color="primary"
+                variant={
+                  this.props.clickedTag !== null &&
+                  this.props.clickedTag.id == tag.id
+                    ? "default"
+                    : "outlined"
+                }
+                style={{ margin: 5 }}
+                onClick={() => this.props.handleClickedTag(tag)}
+              />
+            ))}
           </div>
-        )}
-        {!hasMore && <div>No more videos</div>}
-      </div>
+
+          <Grid container spacing={6} style={{ marginTop: 10 }}>
+            {videos.map((video) => (
+              <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
+                <Card style={{ maxWidth: 380 }}>
+                  <CardActionArea>
+                    <CardMedia
+                      component={Link}
+                      to={`/${video.slug}`}
+                      component="video"
+                      height="160"
+                      disablePictureInPicture
+                      controlsList="nodownload"
+                      src={video.url}
+                      style={{ objectFit: "cover" }}
+                      onContextMenu={(e) => e.preventDefault()}
+                    ></CardMedia>
+                  </CardActionArea>
+                  <CardActions
+                    style={{ display: "flex", justifyContent: "space-between" }}
+                  >
+                    {loggedIn && (
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={(e) => handleMenuClick(video, e)}
+                      >
+                        <MoreIcon />
+                      </IconButton>
+                    )}
+
+                    <Button
+                      component={Link}
+                      to={`/${video.slug}`}
+                      size="small"
+                      variant="outlined"
+                      color="primary"
+                      startIcon={<VisibilityIcon />}
+                      className={classes.buttons}
+                      style={{
+                        fontFamily: "inherit",
+                        marginLeft: "auto",
+                      }}
+                    >
+                      View
+                    </Button>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+
+          {loggedIn && (
+            <React.Fragment>
+              <Hidden mdDown>
+                <Fab
+                  className={classes.fab}
+                  color="primary"
+                  variant="extended"
+                  size="medium"
+                  onClick={handleCreateDialogOpen}
+                >
+                  <AddIcon style={{ marginRight: 8 }} />
+                  Create tag
+                </Fab>
+              </Hidden>
+              <Hidden mdUp>
+                <Fab
+                  className={classes.fab}
+                  color="primary"
+                  onClick={handleCreateDialogOpen}
+                >
+                  <AddIcon />
+                </Fab>
+              </Hidden>
+            </React.Fragment>
+          )}
+
+          {error && <div>{error}</div>}
+          {loading && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "50px",
+                margin: "30px",
+              }}
+            >
+              <CircularProgress className={classes.spinner} />
+            </div>
+          )}
+          {!hasMore && <div>No more videos</div>}
+        </div>
+        <div ref={(loadingRef) => (this.loadingRef = loadingRef)} />
+      </React.Fragment>
     );
   }
 }
