@@ -8,13 +8,22 @@
 }
 
 body {
+    background: linear-gradient(rgba(253, 253, 253, 0.7),
+        rgba(253, 253, 253, 0.7)),
+    url('/static/scraper/images/omnisraper-website-background.png');
+    
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    background-size: cover;
     font-family: 'Montserrat',
         sans-serif;
     color: #161616;
-    background-color: #f4f9f9;
-    position: relative;
+    background-color: #FDFDFD;
+   
     min-height: 100vh;
 }
+
 
 /* GLOBALS */
 .showcase-container {
@@ -148,19 +157,42 @@ nav {
     outline: none;
     border: none;
     border-radius: 3px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     border: 1px solid #e7e6e1;
     
 }
 
+.buttons{
+    display: flex;
+    justify-content: space-between;
+}
+
 .video-button{
+    border: none;
+    outline: none;
     background-color: #fff;
     color: #0071E3;
     font-weight: 600;
     font-size: 15px;
     border: 1px solid #0071E3;
-    padding: 10px 12px;
+    padding: 5px 12px;
     transition: ease-in-out 200ms;
+}
+
+.video-button:focus{
+    border: none !important;
+    outline: none !important;
+}
+
+.report-btn{
+    border: 1px solid #0071E3;
+    background-color: #fff;
+    color: #0071E3;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    /* padding: 8px 10px; */
+    font-family: inherit;
 }
 
 .video-button:hover{
@@ -276,67 +308,85 @@ nav {
 }
 
 .downloads {
-    /* background-image: url('/static/scraper/images/omnisraper-website-background.png'); */
-    background-color: #F7F8FB;
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
     min-height: 100vh;
-    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.downloads>.container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+}
+
+.downloads-highlight{
+    color: #000;
 }
 
 .download-btn{
-    border: none;
-    outline: none;
     text-decoration: none;
     background-color: #0071E3;
     color: #fff;
     text-decoration: none;
-    font-weight: 600;
-    padding: 8px 12px;
+    font-weight: 500;
+    padding: 0.625em 1em;
+    border-radius: 50px;
     cursor: pointer;
-    transition: ease-in-out 200ms
+    transition: ease-in-out 200ms;
+    text-transform: uppercase;
+    font-size: 14px;
+    border: none;
+    outline: none;
+
 }
 
 .download-btn:hover{
     color: #fff;
     text-decoration: none;
-    box-shadow: 0px 2px 5px -1px #000;
+    box-shadow: 0em 0.123em 0.3125em -0.0625em #000;
+}
+
+.download-btn > i{
+    margin-right: 5px;
+    /* font-size: 10px; */
 }
 
 .downloads-container{
-    max-width: 480px;
-    max-height: 320px;
-    margin: 0 auto;
-    
+    width: 480px;
+    height: 320px;
+    display: flex;
 }
 
 .downloads-container-video {
     width: 100%;
     height: auto;
-    /* margin-bottom: 50px; */
     outline: none;
     border: none;
-    border-radius: 3px;
+    border-radius: 10px;
     border: 1px solid #e7e6e1;
-    background-color: #f4f9f9;
+    background-color: #f6f5f5;
+    margin-bottom: 10px;
 }
 
-.video-bottom{
+.downloads-container>a{
+    background-color: #fff;
+}
+
+.video-bottom {
     display: flex;
     justify-content: space-between;
+    justify-self:start;
+    margin-top: 10px;
 }
 
-.video-bottom>a{
+.video-bottom>a {
     font-size: 15px;
     text-decoration: none;
     font-weight: 500;
     text-transform: uppercase;
-    
+
 }
 
 /* MEDIA QUERIES */
@@ -408,17 +458,15 @@ nav {
         font-size: 30px;
     }
 
-    .option>h1 {
-        font-size: 24px;
-        font-weight: 600;
+    .downloads-container {
+        width: 300px;
+        height: 200px;
+        display: flex;
     }
 
-    .option>p {
-        font-size: 18px;
-        font-weight: 600;
-        color: #86868B;
-        line-height: 1.2;
-    }
+    /* .download-btn {
+        padding: 0.375em 0.625em;
+    } */
 }
 
 @media only screen and (max-width: 320px) {
@@ -452,6 +500,12 @@ nav {
         max-width: 280px;
     }
 
+    .downloads-container {
+        width: 280px;
+        height: 180px;
+        display: flex;
+    }
+
 
 }
 
@@ -459,5 +513,11 @@ nav {
 
     .home-item>h1 {
         font-size: 22px;
+    }
+
+    .downloads-container {
+        width: 240px;
+        height: 160px;
+        display: flex;
     }
 }

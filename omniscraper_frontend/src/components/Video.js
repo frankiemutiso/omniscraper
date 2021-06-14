@@ -23,10 +23,10 @@ const styles = (theme) => ({
     display: "flex",
     justifyContent: "center",
   },
-  buttons: {
-    border: "1px solid #185adb",
-    color: "#185adb",
-  },
+  // buttons: {
+  //   border: "1px solid #185adb",
+  //   color: "#185adb",
+  // },
 });
 
 export class Video extends Component {
@@ -91,11 +91,11 @@ export class Video extends Component {
       <div className={classes.root}>
         {/* Desktop UI */}
         <Hidden mdDown>
-          <Card style={{ width: 600 }}>
+          <Card style={{ width: 640 }}>
             <CardActionArea>
               <CardMedia
                 component="video"
-                height="320"
+                height="360"
                 src={video.url}
                 style={{ objectFit: "contain" }}
                 controls
@@ -110,10 +110,6 @@ export class Video extends Component {
               <Button
                 size="small"
                 color="primary"
-                style={{
-                  color: "#185adb",
-                  fontFamily: "inherit",
-                }}
                 startIcon={<TwitterIcon />}
                 href={`https://twitter.com/i/status/${video.parent_tweet_id}`}
                 target="_blank"
@@ -125,8 +121,6 @@ export class Video extends Component {
                 size="small"
                 color="primary"
                 variant="outlined"
-                className={classes.buttons}
-                style={{ fontFamily: "inherit" }}
                 startIcon={<Download />}
                 onClick={() => downloadVideo(video)}
               >

@@ -87,6 +87,12 @@ export class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      error: false,
+      loading: false,
+      offset: 0,
+      limit: 12,
+      videos: [],
+      hasMore: true,
       loadingTags: false,
       open: false,
       clickedVideo: {},
@@ -100,36 +106,55 @@ export class Home extends Component {
       selectedTagsIds: [],
       editingVideoTags: false,
       checkedTags: [],
-      prevY: 0,
+    };
+
+    window.onscroll = () => {
+      const { loadVideos } = this;
+      const { error, loading, hasMore } = this.state;
+
+      if (error || loading || !hasMore) return;
+
+      if (
+        document.documentElement.scrollHeight -
+          document.documentElement.scrollTop ===
+        document.documentElement.clientHeight
+      ) {
+        loadVideos();
+      }
     };
   }
 
-  componentDidMount() {
-    this.props.loadVideos();
+  loadVideos = () => {
+    this.setState({ loading: true }, () => {
+      const { offset, limit } = this.state;
 
-    var options = {
-      root: null,
-      rootMargin: "0px",
-      threshold: 1.0,
-    };
+      axios
+        .get(
+          `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`
+        )
+        .then((res) => {
+          const newVideos = res.data.videos;
+          const hasMore = res.data.has_more;
 
-    this.observer = new IntersectionObserver(
-      this.handleObserver.bind(this),
-      options
-    );
+          this.setState({
+            hasMore,
+            loading: false,
+            videos: [...this.state.videos, ...newVideos],
+            offset: offset + limit,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            error: err.message,
+            loading: false,
+          });
+        });
+    });
+  };
 
-    this.observer.observe(this.loadingRef);
+  UNSAFE_componentWillMount() {
+    this.loadVideos();
   }
-
-  handleObserver = debounce((entities, observer) => {
-    const { loadVideos } = this.props;
-
-    const y = entities[0].boundingClientRect.y;
-    if (this.state.prevY > y) {
-      loadVideos();
-    }
-    this.setState({ prevY: y });
-  }, 3000);
 
   flagVideo = (video) => {
     const url = `${video.slug}`;
@@ -266,6 +291,10 @@ export class Home extends Component {
 
   render() {
     const {
+      error,
+      videos,
+      hasMore,
+      loading,
       open,
       clickedVideo,
       flagging,
@@ -280,8 +309,7 @@ export class Home extends Component {
       checkedTags,
     } = this.state;
 
-    const { classes, loggedIn, videoTags, error, videos, hasMore, loading } =
-      this.props;
+    const { classes, loggedIn, videoTags } = this.props;
 
     const {
       flagVideo,
@@ -607,7 +635,6 @@ export class Home extends Component {
           )}
           {!hasMore && <div>No more videos</div>}
         </div>
-        <div ref={(loadingRef) => (this.loadingRef = loadingRef)} />
       </React.Fragment>
     );
   }
