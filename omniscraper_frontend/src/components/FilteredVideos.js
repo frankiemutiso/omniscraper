@@ -120,7 +120,7 @@ export class Home extends Component {
 
     this.setState({ loading: true }, () => {
       axios
-        .get(`http://127.0.0.1:8000/api/tags/${slug}`)
+        .get(`https://omniscraper-dev.herokuapp.com/api/tags/${slug}`)
         .then((res) => {
           const newVideos = res.data.videos;
 
@@ -168,7 +168,7 @@ export class Home extends Component {
   };
 
   handleCreateTag = () => {
-    const url = "http://127.0.0.1:8000/api/tags/";
+    const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
     const { tagName, description } = this.state;
 
     this.setState({ creatingTag: true }, () => {
@@ -245,7 +245,7 @@ export class Home extends Component {
   handleEditVideoTags = () => {
     const { selectedTagsIds, clickedVideo } = this.state;
 
-    const url = `http://127.0.0.1:8000/api/${clickedVideo.slug}`;
+    const url = `https://omniscraper-dev.herokuapp.com/api/${clickedVideo.slug}`;
 
     this.setState({ editingVideoTags: true }, () => {
       axiosInstance
