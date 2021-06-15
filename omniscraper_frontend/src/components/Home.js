@@ -619,7 +619,6 @@ export class Home extends Component {
             </React.Fragment>
           )}
 
-          {error && <div>{error}</div>}
           {loading && (
             <div
               style={{
@@ -633,7 +632,7 @@ export class Home extends Component {
               <CircularProgress className={classes.spinner} />
             </div>
           )}
-          {!hasMore && <div>No more videos</div>}
+          {!hasMore && <div style={{textAlign: "center"}}>No more videos</div>}
         </div>
       </React.Fragment>
     );
