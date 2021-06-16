@@ -43,9 +43,11 @@ export class Video extends Component {
   loadVideo = () => {
     this.setState({ loading: true }, () => {
       const slug = this.props.match.params.slug;
+      // const url = `http://127.0.0.1:8000/api/${slug}`;
+      const url = `https://omniscraper-dev.herokuapp.com/api/${slug}`;
 
       axios
-        .get(`http://127.0.0.1:8000/api/${slug}`)
+        .get(url)
         .then((res) => {
           this.setState({ video: res.data });
         })

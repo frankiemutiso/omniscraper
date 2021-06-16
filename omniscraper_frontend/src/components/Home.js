@@ -127,11 +127,11 @@ export class Home extends Component {
   loadVideos = () => {
     this.setState({ loading: true }, () => {
       const { offset, limit } = this.state;
+      const url = `https://omniscraper-dev.herokuapp.com/api/videos/?limit=${limit}&offset=${offset}`;
+      // const url = `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`;
 
       axios
-        .get(
-          `https://omniscraper-dev.herokuapp.com/api/videos/?limit=${limit}&offset=${offset}`
-        )
+        .get(url)
         .then((res) => {
           const newVideos = res.data.videos;
           const hasMore = res.data.has_more;
@@ -187,6 +187,7 @@ export class Home extends Component {
 
   handleCreateTag = () => {
     const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
+    // const url = "http://127.0.0.1:8000/api/tags/";
     const { tagName, description } = this.state;
     const { loadTags } = this.props;
 
@@ -265,6 +266,7 @@ export class Home extends Component {
     const { selectedTagsIds, clickedVideo } = this.state;
 
     const url = `https://omniscraper-dev.herokuapp.com/api/${clickedVideo.slug}`;
+    // const url = `http://127.0.0.1:8000/api/${clickedVideo.slug}`;
 
     this.setState({ editingVideoTags: true }, () => {
       axios
@@ -632,7 +634,9 @@ export class Home extends Component {
               <CircularProgress className={classes.spinner} />
             </div>
           )}
-          {!hasMore && <div style={{textAlign: "center"}}>No more videos</div>}
+          {!hasMore && (
+            <div style={{ textAlign: "center" }}>No more videos</div>
+          )}
         </div>
       </React.Fragment>
     );
