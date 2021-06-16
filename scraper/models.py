@@ -7,6 +7,7 @@ import random
 
 # Create your models here.
 
+
 class TwitterVideo(models.Model):
     id = models.UUIDField(primary_key=True)
     url = models.TextField(blank=True, null=True)
@@ -17,6 +18,7 @@ class TwitterVideo(models.Model):
 
     class Meta:
         db_table = 'twitter_videos'
+        managed = False
 
 
 class VideoTag(models.Model):
