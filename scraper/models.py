@@ -18,7 +18,6 @@ class TwitterVideo(models.Model):
 
     class Meta:
         db_table = 'twitter_videos'
-        managed = False
 
 
 class VideoTag(models.Model):
