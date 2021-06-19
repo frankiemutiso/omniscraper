@@ -18,7 +18,6 @@ class TwitterVideo(models.Model):
 
     class Meta:
         db_table = 'twitter_videos'
-        managed = False
 
 
 class VideoTag(models.Model):
@@ -28,8 +27,6 @@ class VideoTag(models.Model):
                             max_length=250, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
-    twitter_videos = models.ManyToManyField(
-        TwitterVideo, related_name="tags", blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -38,3 +35,11 @@ class VideoTag(models.Model):
 
     class Meta:
         db_table = 'video_tags'
+
+class VideoTagTwitterVideo(models.Model):
+    videotag = models.ForeignKey(VideoTag, models.DO_NOTHING)
+    twittervideo = models.ForeignKey(TwitterVideo, models.DO_NOTHING)
+
+    class Meta:
+        db_table = 'video_tags_twitter_videos'
+        unique_together = (('videotag', 'twittervideo'),)
