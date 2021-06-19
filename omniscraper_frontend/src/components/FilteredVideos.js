@@ -184,7 +184,7 @@ export class Home extends Component {
           if (response.status === 201) {
             this.setState({ creatingTag: false });
             this.handleCreateDialogClose();
-            this.loadTags();
+            this.props.loadTags();
           }
         })
         .catch((err) => {

@@ -13,8 +13,9 @@ import Nav from "./Nav";
 const Video = React.lazy(() => import("./Video"));
 import { axiosInstance } from "../axiosInstance";
 import { Chip, createMuiTheme, ThemeProvider } from "@material-ui/core";
-import FilteredVideos from "./FilteredVideos";
+const FilteredVideos = React.lazy(() => import("./FilteredVideos"));
 import ReactGA from "react-ga";
+import { ThreeDots } from "@bit/mhnpd.react-loader-spinner.three-dots";
 
 const theme = createMuiTheme({
   typography: {
@@ -140,6 +141,7 @@ class App extends Component {
       handleLogout,
       handleClickedTag,
       handleClearClickedTag,
+      loadTags,
     } = this;
     const {
       username,
@@ -165,7 +167,19 @@ class App extends Component {
       <ThemeProvider theme={theme}>
         <Router history={history}>
           <div>
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense
+              fallback={
+                <div
+                  style={{
+                    height: "100vh",
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  <ThreeDots color="#185adb" height={50} width={50} />
+                </div>
+              }
+            >
               <Nav
                 loggedIn={loggedIn}
                 handleLogout={handleLogout}
@@ -181,6 +195,7 @@ class App extends Component {
                     handleClickedTag={handleClickedTag}
                     clickedTag={clickedTag}
                     tagsLoading={tagsLoading}
+                    loadTags={loadTags}
                   />
                 </Route>
                 <Route
@@ -192,6 +207,7 @@ class App extends Component {
                       handleClickedTag={handleClickedTag}
                       clickedTag={clickedTag}
                       tagsLoading={tagsLoading}
+                      loadTags={loadTags}
                     />
                   }
                 />
