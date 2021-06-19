@@ -152,12 +152,6 @@ SECURE_SSL_REDIRECT = True
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Activate Django-Heroku.
-django_heroku.settings(locals())
-
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
-
 GA_TRACKING_ID = env('GA_TRACKING_ID')
 
 
@@ -187,3 +181,9 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ('rest_framework_simplejwt.tokens.AccessToken',),
     "TOKEN_TYPE_CLAIM": "token_type"
 }
+
+# Activate Django-Heroku.
+django_heroku.settings(locals())
+
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
