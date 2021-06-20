@@ -9,13 +9,13 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import dj_database_url
 from datetime import timedelta
 
 from pathlib import Path
 import os
 import environ
 import django_heroku
-import dj_database_url
 
 env = environ.Env()
 environ.Env.read_env()
@@ -161,19 +161,14 @@ CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # enforce site-wide HTTPS
 
-CSRF_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
-SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_SECURE = True
 
-SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = True
 
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Activate Django-Heroku.
-django_heroku.settings(locals())
-
-db_from_env = dj_database_url.config(conn_max_age=600)
-DATABASES['default'].update(db_from_env)
 
 GA_TRACKING_ID = env('GA_TRACKING_ID')
 
@@ -204,3 +199,10 @@ SIMPLE_JWT = {
     "AUTH_TOKEN_CLASSES": ('rest_framework_simplejwt.tokens.AccessToken',),
     "TOKEN_TYPE_CLAIM": "token_type"
 }
+
+# Activate Django-Heroku.
+
+django_heroku.settings(locals())
+
+db_from_env = dj_database_url.config(conn_max_age=600)
+DATABASES['default'].update(db_from_env)
