@@ -42,6 +42,7 @@ const styles = (theme) => ({
     marginRight: 40,
     marginLeft: 40,
     paddingTop: 100,
+    paddingBottom: 100,
     // position: "relative",
   },
   spinner: {
