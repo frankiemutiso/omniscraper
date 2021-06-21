@@ -42,11 +42,8 @@ const styles = (theme) => ({
     marginRight: 40,
     marginLeft: 40,
     paddingTop: 100,
-    paddingBottom: 100,
-    // position: "relative",
   },
   spinner: {
-    // color: "#185adb",
     margin: 20,
   },
   buttons: {
@@ -136,14 +133,11 @@ export class Home extends Component {
 
   handleInfiniteScroll = () => {
     const { error, loading, hasMore, loadVideos } = this.props;
+    const { scrollHeight, scrollTop, clientHeight } = document.documentElement;
 
     if (error || loading || !hasMore) return;
 
-    if (
-      document.documentElement.scrollHeight -
-        document.documentElement.scrollTop ===
-      document.documentElement.clientHeight
-    ) {
+    if (clientHeight + scrollTop >= scrollHeight) {
       loadVideos();
     }
   };
@@ -189,6 +183,7 @@ export class Home extends Component {
   handleCreateTag = () => {
     const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
     // const url = "http://127.0.0.1:8000/api/tags/";
+
     const { tagName, description } = this.state;
     const { loadTags } = this.props;
 
@@ -471,7 +466,7 @@ export class Home extends Component {
 
     return (
       <React.Fragment>
-        <div className={classes.root}>
+        <div className={classes.root} onScroll={this.handleInfiniteScroll}>
           <Menu
             keepMounted
             open={mouseY !== null}
@@ -552,7 +547,6 @@ export class Home extends Component {
             spacing={6}
             style={{ marginTop: 10 }}
             // ref={this.loadingRef}
-            onScroll={this.handleInfiniteScroll}
           >
             {videos.map((video) => (
               <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>

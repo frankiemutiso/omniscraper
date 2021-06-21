@@ -19,7 +19,7 @@ const styles = (theme) => ({
     flex: 1,
     paddingTop: 100,
     margin: "auto",
-    width: "80vw",
+    width: "85vw",
     display: "flex",
     justifyContent: "center",
   },
@@ -136,7 +136,7 @@ export class Video extends Component {
                 component="video"
                 // height="60vh"
                 src={video.url}
-                style={{ objectFit: "contain", height: "100vh" }}
+                style={{ objectFit: "contain", height: "70vh" }}
                 controls
                 disablePictureInPicture
                 controlsList="nodownload"

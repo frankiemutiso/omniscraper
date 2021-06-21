@@ -85,8 +85,8 @@ class App extends Component {
 
   loadTags = () => {
     this.setState({ tagsLoading: true }, () => {
-      // const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
-      const url = "http://127.0.0.1:8000/api/tags/";
+      const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
+      // const url = "http://127.0.0.1:8000/api/tags/";
 
       axios
         .get(url)
