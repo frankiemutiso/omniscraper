@@ -137,7 +137,7 @@ export class Home extends Component {
 
     if (error || loading || !hasMore) return;
 
-    if (clientHeight + scrollTop >= scrollHeight) {
+    if (scrollHeight - 100 - scrollTop === clientHeight) {
       loadVideos();
     }
   };
