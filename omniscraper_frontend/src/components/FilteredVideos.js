@@ -526,10 +526,8 @@ export class Home extends Component {
           {videos.map((video) => (
             <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
               <Card style={{ maxWidth: 380 }}>
-                <CardActionArea>
+                <CardActionArea component={Link} to={`/${video.slug}`}>
                   <CardMedia
-                    component={Link}
-                    to={`/${video.slug}`}
                     component="video"
                     height="160"
                     disablePictureInPicture

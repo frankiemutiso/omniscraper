@@ -87,12 +87,12 @@ export class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      error: false,
-      loading: false,
-      offset: 0,
-      limit: 12,
-      videos: [],
-      hasMore: true,
+      // error: false,
+      // loading: false,
+      // offset: 0,
+      // limit: 12,
+      // videos: [],
+      // hasMore: true,
       loadingTags: false,
       open: false,
       clickedVideo: {},
@@ -106,54 +106,54 @@ export class Home extends Component {
       selectedTagsIds: [],
       editingVideoTags: false,
       checkedTags: [],
+      scrollPosition: 0,
+      prevY: 0,
     };
 
-    window.onscroll = () => {
-      const { loadVideos } = this;
-      const { error, loading, hasMore } = this.state;
+    // window.onscroll = () => {
+    //   const { error, loading, hasMore, loadVideos } = this.props;
 
-      if (error || loading || !hasMore) return;
+    //   if (error || loading || !hasMore) return;
 
-      if (
-        document.documentElement.scrollHeight -
-          document.documentElement.scrollTop ===
-        document.documentElement.clientHeight
-      ) {
-        loadVideos();
-      }
-    };
+    //   // if (
+    //   //   document.documentElement.scrollHeight -
+    //   //     document.documentElement.scrollTop ===
+    //   //   document.documentElement.clientHeight
+    //   // ) {
+    //   //   loadVideos();
+    //   // }
+    // };
+
+    this.loadingRef = React.createRef();
   }
 
-  loadVideos = () => {
-    this.setState({ loading: true }, () => {
-      const { offset, limit } = this.state;
-      const url = `https://omniscraper-dev.herokuapp.com/api/videos/?limit=${limit}&offset=${offset}`;
-      // const url = `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`;
-
-      axios
-        .get(url)
-        .then((res) => {
-          const newVideos = res.data.videos;
-          const hasMore = res.data.has_more;
-
-          this.setState({
-            hasMore,
-            loading: false,
-            videos: [...this.state.videos, ...newVideos],
-            offset: offset + limit,
-          });
-        })
-        .catch((err) => {
-          this.setState({
-            error: err.message,
-            loading: false,
-          });
-        });
+  handleScrollPosition = () => {
+    this.setState({
+      scrollPosition: window.pageYOffset,
     });
   };
 
-  UNSAFE_componentWillMount() {
-    this.loadVideos();
+  handleInfiniteScroll = () => {
+    const { error, loading, hasMore, loadVideos } = this.props;
+
+    if (error || loading || !hasMore) return;
+
+    if (
+      document.documentElement.scrollHeight -
+        document.documentElement.scrollTop ===
+      document.documentElement.clientHeight
+    ) {
+      loadVideos();
+    }
+  };
+
+  componentDidMount() {
+    window.scrollTo(0, this.state.scrollPosition);
+    window.addEventListener("scroll", this.handleInfiniteScroll);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.handleInfiniteScroll);
   }
 
   flagVideo = (video) => {
@@ -293,10 +293,10 @@ export class Home extends Component {
 
   render() {
     const {
-      error,
-      videos,
-      hasMore,
-      loading,
+      // error,
+      // videos,
+      // hasMore,
+      // loading,
       open,
       clickedVideo,
       flagging,
@@ -311,7 +311,8 @@ export class Home extends Component {
       checkedTags,
     } = this.state;
 
-    const { classes, loggedIn, videoTags } = this.props;
+    const { classes, loggedIn, videoTags, error, loading, hasMore, videos } =
+      this.props;
 
     const {
       flagVideo,
@@ -327,6 +328,7 @@ export class Home extends Component {
       handleCreateTag,
       handleSelectedTagsChange,
       handleEditVideoTags,
+      handleScrollPosition,
     } = this;
 
     const createTagDialog = (
@@ -544,14 +546,18 @@ export class Home extends Component {
             ))}
           </div>
 
-          <Grid container spacing={6} style={{ marginTop: 10 }}>
+          <Grid
+            container
+            spacing={6}
+            style={{ marginTop: 10 }}
+            // ref={this.loadingRef}
+            onScroll={this.handleInfiniteScroll}
+          >
             {videos.map((video) => (
               <Grid item lg={3} md={6} sm={6} xs={12} key={video.id}>
                 <Card style={{ maxWidth: 380 }}>
-                  <CardActionArea>
+                  <CardActionArea component={Link} to={`/${video.slug}`}>
                     <CardMedia
-                      component={Link}
-                      to={`/${video.slug}`}
                       component="video"
                       height="160"
                       disablePictureInPicture
@@ -586,6 +592,7 @@ export class Home extends Component {
                         fontFamily: "inherit",
                         marginLeft: "auto",
                       }}
+                      onClick={handleScrollPosition}
                     >
                       View
                     </Button>

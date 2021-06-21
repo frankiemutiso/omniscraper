@@ -41,16 +41,52 @@ class App extends Component {
     clickedTag: localStorage.getItem("clicked_tag") || null,
     tagsLoading: false,
     videoTags: [],
+
+    videosLoadingError: false,
+    loading: false,
+    offset: 0,
+    limit: 12,
+    videos: [],
+    hasMore: true,
   };
 
   componentDidMount() {
     this.loadTags();
+    this.loadVideos();
   }
+
+  loadVideos = () => {
+    this.setState({ loading: true }, () => {
+      const { offset, limit } = this.state;
+      const url = `https://omniscraper-dev.herokuapp.com/api/videos/?limit=${limit}&offset=${offset}`;
+      // const url = `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`;
+
+      axios
+        .get(url)
+        .then((res) => {
+          const newVideos = res.data.videos;
+          const hasMore = res.data.has_more;
+
+          this.setState({
+            hasMore,
+            loading: false,
+            videos: [...this.state.videos, ...newVideos],
+            offset: offset + limit,
+          });
+        })
+        .catch((err) => {
+          this.setState({
+            videosLoadingError: err.message,
+            loading: false,
+          });
+        });
+    });
+  };
 
   loadTags = () => {
     this.setState({ tagsLoading: true }, () => {
-      const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
-      // const url = "http://127.0.0.1:8000/api/tags/";
+      // const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
+      const url = "http://127.0.0.1:8000/api/tags/";
 
       axios
         .get(url)
@@ -142,6 +178,7 @@ class App extends Component {
       handleClickedTag,
       handleClearClickedTag,
       loadTags,
+      loadVideos,
     } = this;
     const {
       username,
@@ -152,6 +189,11 @@ class App extends Component {
       videoTags,
       clickedTag,
       tagsLoading,
+
+      videosLoadingError,
+      loading,
+      hasMore,
+      videos,
     } = this.state;
 
     const trackingId = "UA-190601275-1";
@@ -196,6 +238,11 @@ class App extends Component {
                     clickedTag={clickedTag}
                     tagsLoading={tagsLoading}
                     loadTags={loadTags}
+                    error={videosLoadingError}
+                    loading={loading}
+                    hasMore={hasMore}
+                    videos={videos}
+                    loadVideos={loadVideos}
                   />
                 </Route>
                 <Route
