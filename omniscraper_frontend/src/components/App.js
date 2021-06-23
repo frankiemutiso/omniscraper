@@ -5,16 +5,14 @@ import {
   Route,
   Redirect,
 } from "react-router-dom";
-import { createBrowserHistory } from "history";
 import axios from "axios";
 const Home = React.lazy(() => import("./Home"));
 const Login = React.lazy(() => import("./Login"));
 import Nav from "./Nav";
 const Video = React.lazy(() => import("./Video"));
 import { axiosInstance } from "../axiosInstance";
-import { Chip, createMuiTheme, ThemeProvider } from "@material-ui/core";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core";
 const FilteredVideos = React.lazy(() => import("./FilteredVideos"));
-import ReactGA from "react-ga";
 import { ThreeDots } from "@bit/mhnpd.react-loader-spinner.three-dots";
 
 const theme = createMuiTheme({
@@ -196,18 +194,9 @@ class App extends Component {
       videos,
     } = this.state;
 
-    const trackingId = "UA-190601275-1";
-    ReactGA.initialize(trackingId);
-
-    const history = createBrowserHistory();
-    history.listen((location) => {
-      ReactGA.set({ page: location.pathname });
-      ReactGA.pageview(location.pathname);
-    });
-
     return (
       <ThemeProvider theme={theme}>
-        <Router history={history}>
+        <Router>
           <div>
             <Suspense
               fallback={

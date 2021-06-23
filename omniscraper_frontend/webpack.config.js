@@ -3,6 +3,8 @@ const BundleTracker = require("webpack-bundle-tracker");
 const TerserWebpackPlugin = require("terser-webpack-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CompressionPlugin = require("compression-webpack-plugin");
+const zlib = require("zlib");
 
 module.exports = function (_env, argv) {
   const isProd = argv.mode === "production";
@@ -55,13 +57,19 @@ module.exports = function (_env, argv) {
       new BundleTracker({ filename: "./webpack-stats.json" }),
       isProd &&
         new MiniCssExtractPlugin({
-          filename:
-            "./static/omniscraper_frontend/bundles/[name].[contenthash:8].css",
-          chunkFilename:
-            "./static/omniscraper_frontend/bundles/[name].[contenthash:8].chunk.css",
+          filename: "[name].[contenthash:8].css",
+          chunkFilename: "[name].[contenthash:8].chunk.css",
         }),
+      new CompressionPlugin({
+        filename: "[path][base].gz",
+        algorithm: "gzip",
+        test: /\.js$|\.css$|\.html$/,
+        threshold: 10240,
+        minRatio: 0.8,
+      }),
     ].filter(Boolean),
     optimization: {
+      usedExports: true,
       splitChunks: {
         chunks: "all",
         minSize: 0,
