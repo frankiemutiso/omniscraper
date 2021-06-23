@@ -19,11 +19,12 @@
     
     <title>Omniscraper - The #1 downloader for Twitter Videos and GIFs</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
-
+    {% render_bundle 'main' 'css' %}
+    
 </head>
 <body>
     <div id="app"></div>
-    {% render_bundle 'main' %}
+    {% render_bundle 'main' 'js' %}
     <!-- <script src="{% static 'omniscraper_frontend/main.js' %}"></script> -->
 </body>
 </html>
