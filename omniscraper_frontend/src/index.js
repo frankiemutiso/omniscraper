@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "react-dom";
+import ReactDOM from "react-dom";
 import App from "./components/App";
 import { BrowserRouter } from "react-router-dom";
 import ReactGA from "react-ga";
@@ -15,9 +15,15 @@ history.listen((location) => {
 
 ReactGA.initialize("UA-190601275-1");
 
-render(
+ReactDOM.render(
   <BrowserRouter history={history}>
     <App />
   </BrowserRouter>,
   document.getElementById("app")
 );
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/service-worker.js");
+  });
+}

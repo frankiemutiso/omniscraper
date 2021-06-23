@@ -3,8 +3,7 @@ const BundleTracker = require("webpack-bundle-tracker");
 const TerserWebpackPlugin = require("terser-webpack-plugin");
 const OptimizeCssAssetsPlugin = require("optimize-css-assets-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CompressionPlugin = require("compression-webpack-plugin");
-const zlib = require("zlib");
+const WorkboxPlugin = require("workbox-webpack-plugin");
 
 module.exports = function (_env, argv) {
   const isProd = argv.mode === "production";
@@ -51,6 +50,7 @@ module.exports = function (_env, argv) {
             "css-loader",
           ],
         },
+        { test: /\.worker\.js$/, loader: "worker-loader" },
       ],
     },
     plugins: [
@@ -60,15 +60,32 @@ module.exports = function (_env, argv) {
           filename: "[name].[contenthash:8].css",
           chunkFilename: "[name].[contenthash:8].chunk.css",
         }),
-      new CompressionPlugin({
-        filename: "[path][base].gz",
-        algorithm: "gzip",
-        test: /\.js$|\.css$|\.html$/,
-        threshold: 10240,
-        minRatio: 0.8,
+      new WorkboxPlugin.GenerateSW({
+        swDest: "service-worker.js",
+        clientsClaim: true,
+        skipWaiting: true,
       }),
     ].filter(Boolean),
     optimization: {
+      minimize: isProd,
+      minimizer: [
+        new TerserWebpackPlugin({
+          terserOptions: {
+            compress: {
+              comparisons: false,
+            },
+            mangle: {
+              safari10: true,
+            },
+            output: {
+              comments: false,
+              ascii_only: true,
+            },
+            warnings: false,
+          },
+        }),
+        new OptimizeCssAssetsPlugin(),
+      ],
       usedExports: true,
       splitChunks: {
         chunks: "all",

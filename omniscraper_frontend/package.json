@@ -15,7 +15,6 @@
     "@babel/preset-env": "^7.14.4",
     "@babel/preset-react": "^7.13.13",
     "babel-loader": "^8.2.2",
-    "compression-webpack-plugin": "^8.0.0",
     "css-loader": "^5.2.6",
     "file-loader": "^6.2.0",
     "mini-css-extract-plugin": "^1.6.0",
@@ -27,7 +26,9 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.38.1",
     "webpack-bundle-tracker": "^1.1.0",
-    "webpack-cli": "^4.7.0"
+    "webpack-cli": "^4.7.0",
+    "workbox-webpack-plugin": "^6.1.5",
+    "worker-loader": "^3.0.8"
   },
   "dependencies": {
     "@bit/mhnpd.react-loader-spinner.three-dots": "^2.2.0",
