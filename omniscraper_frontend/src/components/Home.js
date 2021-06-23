@@ -22,7 +22,6 @@ import {
   Hidden,
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
-// import VisibilityIcon from "@material-ui/icons/Visibility";
 import MovieOutlinedIcon from '@material-ui/icons/MovieOutlined';
 
 import MoreIcon from "@material-ui/icons/MoreVert";
@@ -34,7 +33,6 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
-import { Skeleton } from "@material-ui/lab";
 
 const styles = (theme) => ({
   root: {

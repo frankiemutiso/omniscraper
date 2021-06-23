@@ -33,23 +33,6 @@ module.exports = {
     new BundleTracker({filename: './webpack-stats.json'}),
   ],
   optimization: {
-    minimizer: [
-        new TerserWebpackPlugin({
-          terserOptions: {
-            compress: {
-              comparisons: false
-            },
-            mangle: {
-              safari10: true
-            },
-            output: {
-              comments: false,
-              ascii_only: true
-            },
-            warnings: false
-          }
-        }),
-        new OptimizeCssAssetsPlugin()],
     splitChunks: {
       chunks: 'all', 
       minSize: 0, 
