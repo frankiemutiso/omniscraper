@@ -1,7 +1,6 @@
 const path = require("path");
 const BundleTracker = require("webpack-bundle-tracker");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const WorkboxPlugin = require("workbox-webpack-plugin");
 
 module.exports = function (_env, argv) {
   const isProd = argv.mode === "production";
@@ -70,7 +69,6 @@ module.exports = function (_env, argv) {
           filename: "[name].[contenthash:8].css",
           chunkFilename: "[name].[contenthash:8].chunk.css",
         }),
-      new WorkboxPlugin.GenerateSW(),
     ].filter(Boolean),
     optimization: {
       usedExports: true,

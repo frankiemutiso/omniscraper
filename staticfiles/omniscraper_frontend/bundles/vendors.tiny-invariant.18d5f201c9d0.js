@@ -1,0 +1,1 @@
+(self.webpackChunkomniscraper_frontend=self.webpackChunkomniscraper_frontend||[]).push([[373],{2177:(n,r,e)=>{"use strict";e.d(r,{Z:()=>o});const o=function(n,r){if(!n)throw new Error("Invariant failed")}}}]);
