@@ -33,7 +33,6 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
-import { HOST } from "./App";
 
 const styles = (theme) => ({
   root: {
@@ -161,7 +160,7 @@ export class Home extends Component {
   };
 
   handleCreateTag = () => {
-    const url = "${HOST}/api/tags/";
+    const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
 
     const { tagName, description } = this.state;
     const { loadTags } = this.props;
@@ -240,7 +239,7 @@ export class Home extends Component {
   handleEditVideoTags = () => {
     const { selectedTagsIds, clickedVideo } = this.state;
 
-    const url = `${HOST}/api/${clickedVideo.slug}`;
+    const url = `https://omniscraper-dev.herokuapp.com/api/${clickedVideo.slug}`;
 
     this.setState({ editingVideoTags: true }, () => {
       axios

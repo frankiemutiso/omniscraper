@@ -11,7 +11,6 @@ import { withRouter } from "react-router";
 
 import Download from "@material-ui/icons/ArrowDownward";
 import TwitterIcon from "@material-ui/icons/Twitter";
-import { HOST } from "./App";
 
 const styles = (theme) => ({
   root: {
@@ -38,7 +37,7 @@ export class Video extends Component {
   loadVideo = () => {
     this.setState({ loading: true }, () => {
       const slug = this.props.match.params.slug;
-      const url = `${HOST}/api/${slug}`;
+      const url = `https://omniscraper-dev.herokuapp.com/api/${slug}`;
 
       axios
         .get(url)

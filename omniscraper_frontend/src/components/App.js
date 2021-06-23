@@ -29,8 +29,6 @@ const theme = createMuiTheme({
   },
 });
 
-export const HOST = "https://omniscraper-dev.herokuapp.com";
-
 class App extends Component {
   state = {
     username: "",
@@ -58,7 +56,7 @@ class App extends Component {
   loadVideos = () => {
     this.setState({ loading: true }, () => {
       const { offset, limit } = this.state;
-      const url = `${HOST}/api/videos/?limit=${limit}&offset=${offset}`;
+      const url = `https://omniscraper-dev.herokuapp.com/api/videos/?limit=${limit}&offset=${offset}`;
 
       axios
         .get(url)
