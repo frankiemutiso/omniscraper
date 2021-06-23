@@ -40,7 +40,7 @@ export class Nav extends Component {
               </Link>
             </h3>
             <div>
-              {loggedIn ? (
+              {loggedIn && (
                 <React.Fragment>
                   <Button
                     size="small"
@@ -53,16 +53,7 @@ export class Nav extends Component {
                     Logout
                   </Button>
                 </React.Fragment>
-              ) : (
-                <Button
-                  size="small"
-                  variant="contained"
-                  component={Link}
-                  to="/login"
-                  className={classes.navLink}
-                >
-                  Login
-                </Button>
+              
               )}
             </div>
           </Toolbar>

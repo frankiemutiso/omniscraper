@@ -22,7 +22,9 @@ import {
   Hidden,
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
-import VisibilityIcon from "@material-ui/icons/Visibility";
+// import VisibilityIcon from "@material-ui/icons/Visibility";
+import MovieOutlinedIcon from '@material-ui/icons/MovieOutlined';
+
 import MoreIcon from "@material-ui/icons/MoreVert";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
@@ -32,7 +34,6 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
-import debounce from "lodash.debounce";
 import { Skeleton } from "@material-ui/lab";
 
 const styles = (theme) => ({
@@ -581,7 +582,7 @@ export class Home extends Component {
                       size="small"
                       variant="outlined"
                       color="primary"
-                      startIcon={<VisibilityIcon />}
+                      startIcon={<MovieOutlinedIcon />}
                       className={classes.buttons}
                       style={{
                         fontFamily: "inherit",

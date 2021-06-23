@@ -34,7 +34,9 @@ INSTALLED_APPS = [
     'omniscraper_frontend',
     'crispy_forms',
     'rest_framework',
-    'rest_framework_simplejwt.token_blacklist'
+    'rest_framework_simplejwt.token_blacklist',
+    'webpack_loader',
+
 ]
 
 MIDDLEWARE = [
@@ -136,7 +138,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'omniscraper_frontend/static'), ]
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 
 LOGIN_REDIRECT_URL = "home"
 
@@ -187,3 +192,10 @@ SIMPLE_JWT = {
 
 # Activate Django-Heroku.
 django_heroku.settings(locals())
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'omniscraper_frontend/bundles/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'omniscraper_frontend/webpack-stats.json'),
+    }
+}

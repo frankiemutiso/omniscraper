@@ -1,5 +1,9 @@
+
+{% load render_bundle from webpack_loader %}
+
 <!DOCTYPE html>
 {% load static %}
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -19,7 +23,7 @@
 </head>
 <body>
     <div id="app"></div>
-    
-    <script src="{% static 'omniscraper_frontend/main.js' %}"></script>
+    {% render_bundle 'main' %}
+    <!-- <script src="{% static 'omniscraper_frontend/main.js' %}"></script> -->
 </body>
 </html>

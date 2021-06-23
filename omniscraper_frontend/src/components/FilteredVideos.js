@@ -22,7 +22,8 @@ import {
   Hidden,
 } from "@material-ui/core";
 import ReportIcon from "@material-ui/icons/Report";
-import VisibilityIcon from "@material-ui/icons/Visibility";
+// import VisibilityIcon from "@material-ui/icons/Visibility";
+import MovieOutlinedIcon from '@material-ui/icons/MovieOutlined';
 import MoreIcon from "@material-ui/icons/MoreVert";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
@@ -556,7 +557,7 @@ export class Home extends Component {
                     size="small"
                     variant="outlined"
                     color="primary"
-                    startIcon={<VisibilityIcon />}
+                    startIcon={<MovieOutlinedIcon />}
                     className={classes.buttons}
                     style={{
                       fontFamily: "inherit",
