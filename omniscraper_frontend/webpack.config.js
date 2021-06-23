@@ -60,11 +60,7 @@ module.exports = function (_env, argv) {
           filename: "[name].[contenthash:8].css",
           chunkFilename: "[name].[contenthash:8].chunk.css",
         }),
-      new WorkboxPlugin.GenerateSW({
-        swDest: "./service-worker.js",
-        clientsClaim: true,
-        skipWaiting: true,
-      }),
+      new WorkboxPlugin.GenerateSW(),
     ].filter(Boolean),
     optimization: {
       minimize: isProd,
