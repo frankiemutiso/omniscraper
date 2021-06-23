@@ -1,5 +1,5 @@
 import axios from "axios";
-const HOST = window.location.host;
+import { HOST } from "./components/App";
 
 const baseURL = `${HOST}/api/`;
 

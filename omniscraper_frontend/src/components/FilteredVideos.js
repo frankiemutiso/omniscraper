@@ -18,7 +18,6 @@ import TextField from "@material-ui/core/TextField";
 import Chip from "@material-ui/core/Chip";
 import Fab from "@material-ui/core/Fab";
 import Hidden from "@material-ui/core/Hidden";
-import ReportIcon from "@material-ui/icons/Report";
 import { withStyles } from "@material-ui/core";
 import MovieOutlinedIcon from "@material-ui/icons/MovieOutlined";
 import MoreIcon from "@material-ui/icons/MoreVert";
@@ -31,7 +30,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
 import { withRouter } from "react-router";
-
+import { HOST } from "./App";
 const styles = (theme) => ({
   root: {
     color: "#185adb",
@@ -77,8 +76,6 @@ const styles = (theme) => ({
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" color="primary" />;
-
-const HOST = window.location.host;
 
 export class Home extends Component {
   constructor(props) {

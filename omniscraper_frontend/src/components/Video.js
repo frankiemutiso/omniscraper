@@ -11,6 +11,7 @@ import { withRouter } from "react-router";
 
 import Download from "@material-ui/icons/ArrowDownward";
 import TwitterIcon from "@material-ui/icons/Twitter";
+import { HOST } from "./App";
 
 const styles = (theme) => ({
   root: {
@@ -22,8 +23,6 @@ const styles = (theme) => ({
     justifyContent: "center",
   },
 });
-
-const HOST = window.location.host;
 
 export class Video extends Component {
   state = {

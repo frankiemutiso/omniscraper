@@ -33,6 +33,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { axiosInstance } from "../axiosInstance";
+import { HOST } from "./App";
 
 const styles = (theme) => ({
   root: {
@@ -79,18 +80,11 @@ const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" color="primary" />;
 
 const PLACEHOLDERS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-const HOST = window.location.host;
 
 export class Home extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // error: false,
-      // loading: false,
-      // offset: 0,
-      // limit: 12,
-      // videos: [],
-      // hasMore: true,
       loadingTags: false,
       open: false,
       clickedVideo: {},
@@ -107,20 +101,6 @@ export class Home extends Component {
       scrollPosition: 0,
       prevY: 0,
     };
-
-    // window.onscroll = () => {
-    //   const { error, loading, hasMore, loadVideos } = this.props;
-
-    //   if (error || loading || !hasMore) return;
-
-    //   // if (
-    //   //   document.documentElement.scrollHeight -
-    //   //     document.documentElement.scrollTop ===
-    //   //   document.documentElement.clientHeight
-    //   // ) {
-    //   //   loadVideos();
-    //   // }
-    // };
 
     this.loadingRef = React.createRef();
   }

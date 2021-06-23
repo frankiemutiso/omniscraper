@@ -29,7 +29,7 @@ const theme = createMuiTheme({
   },
 });
 
-const HOST = window.location.host;
+export const HOST = "https://omniscraper-dev.herokuapp";
 
 class App extends Component {
   state = {
