@@ -29,6 +29,8 @@ const theme = createMuiTheme({
   },
 });
 
+const HOST = window.location.host;
+
 class App extends Component {
   state = {
     username: "",
@@ -56,8 +58,7 @@ class App extends Component {
   loadVideos = () => {
     this.setState({ loading: true }, () => {
       const { offset, limit } = this.state;
-      const url = `https://omniscraper-dev.herokuapp.com/api/videos/?limit=${limit}&offset=${offset}`;
-      // const url = `http://127.0.0.1:8000/api/videos/?limit=${limit}&offset=${offset}`;
+      const url = `${HOST}/api/videos/?limit=${limit}&offset=${offset}`;
 
       axios
         .get(url)
@@ -83,8 +84,7 @@ class App extends Component {
 
   loadTags = () => {
     this.setState({ tagsLoading: true }, () => {
-      const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
-      // const url = "http://127.0.0.1:8000/api/tags/";
+      const url = "${HOST}/api/tags/";
 
       axios
         .get(url)

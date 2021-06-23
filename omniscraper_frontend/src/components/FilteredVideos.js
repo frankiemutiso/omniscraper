@@ -1,29 +1,26 @@
 import React, { Component } from "react";
-import {
-  Button,
-  Card,
-  CardActionArea,
-  CardActions,
-  CardMedia,
-  Grid,
-  CircularProgress,
-  IconButton,
-  withStyles,
-  Dialog,
-  DialogTitle,
-  DialogActions,
-  Menu,
-  MenuItem,
-  DialogContent,
-  Checkbox,
-  TextField,
-  Chip,
-  Fab,
-  Hidden,
-} from "@material-ui/core";
+import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
+import CardActionArea from "@material-ui/core/CardActionArea";
+import CardActions from "@material-ui/core/CardActions";
+import CardMedia from "@material-ui/core/CardMedia";
+import Grid from "@material-ui/core/Grid";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import IconButton from "@material-ui/core/IconButton";
+import Dialog from "@material-ui/core/Dialog";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import DialogActions from "@material-ui/core/DialogActions";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import DialogContent from "@material-ui/core/DialogContent";
+import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
+import Chip from "@material-ui/core/Chip";
+import Fab from "@material-ui/core/Fab";
+import Hidden from "@material-ui/core/Hidden";
 import ReportIcon from "@material-ui/icons/Report";
-// import VisibilityIcon from "@material-ui/icons/Visibility";
-import MovieOutlinedIcon from '@material-ui/icons/MovieOutlined';
+import { withStyles } from "@material-ui/core";
+import MovieOutlinedIcon from "@material-ui/icons/MovieOutlined";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import CheckBoxOutlineBlankIcon from "@material-ui/icons/CheckBoxOutlineBlank";
 import CheckBoxIcon from "@material-ui/icons/CheckBox";
@@ -81,6 +78,8 @@ const styles = (theme) => ({
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" color="primary" />;
 
+const HOST = window.location.host;
+
 export class Home extends Component {
   constructor(props) {
     super(props);
@@ -118,8 +117,7 @@ export class Home extends Component {
 
   loadVideos = () => {
     const slug = this.props.match.params.slug;
-    const url = `https://omniscraper-dev.herokuapp.com/api/tags/${slug}`;
-    // const url = `http://127.0.0.1:8000/api/tags/${slug}`;
+    const url = `${HOST}/api/tags/${slug}`;
 
     this.setState({ loading: true }, () => {
       axios
@@ -171,8 +169,7 @@ export class Home extends Component {
   };
 
   handleCreateTag = () => {
-    const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
-    // const url = "http://127.0.0.1:8000/api/tags/";
+    const url = "${HOST}/api/tags/";
     const { tagName, description } = this.state;
 
     this.setState({ creatingTag: true }, () => {
@@ -249,8 +246,7 @@ export class Home extends Component {
   handleEditVideoTags = () => {
     const { selectedTagsIds, clickedVideo } = this.state;
 
-    const url = `https://omniscraper-dev.herokuapp.com/api/${clickedVideo.slug}`;
-    // const url = `http://127.0.0.1:8000/api/${clickedVideo.slug}`;
+    const url = `${HOST}/api/${clickedVideo.slug}`;
 
     this.setState({ editingVideoTags: true }, () => {
       axiosInstance
