@@ -113,7 +113,7 @@ export class Home extends Component {
 
   loadVideos = () => {
     const slug = this.props.match.params.slug;
-    const url = `https://omniscraper-dev.herokuapp.com/api/tags/${slug}`;
+    const url = `https://omniscraper.herokuapp.com/api/tags/${slug}`;
 
     this.setState({ loading: true }, () => {
       axios
@@ -165,7 +165,7 @@ export class Home extends Component {
   };
 
   handleCreateTag = () => {
-    const url = "https://omniscraper-dev.herokuapp.com/api/tags/";
+    const url = "https://omniscraper.herokuapp.com/api/tags/";
     const { tagName, description } = this.state;
 
     this.setState({ creatingTag: true }, () => {
@@ -242,7 +242,7 @@ export class Home extends Component {
   handleEditVideoTags = () => {
     const { selectedTagsIds, clickedVideo } = this.state;
 
-    const url = `https://omniscraper-dev.herokuapp.com/api/${clickedVideo.slug}`;
+    const url = `https://omniscraper.herokuapp.com/api/${clickedVideo.slug}`;
 
     this.setState({ editingVideoTags: true }, () => {
       axiosInstance
